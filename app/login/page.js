@@ -9,7 +9,7 @@ export default function LoginPage() {
       <div className="mt-6 text-center text-zinc-600 text-sm">
         <div className="mb-2">Demo login: <b>user@example.com</b> / <b>password</b></div>
         <div>
-          <span className="text-zinc-400">Don't have an account?</span>{" "}
+          <span className="text-zinc-400">Do not have an account?</span>{" "}
           <a href="/register" className="text-blue-600 underline">Register here</a>
         </div>
       </div>

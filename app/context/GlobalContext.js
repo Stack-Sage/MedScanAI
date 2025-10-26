@@ -9,6 +9,7 @@ export function GlobalProvider({ children }) {
   useEffect(() => {
     try {
       const raw = localStorage.getItem('lastResult')
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       if (raw) setLastResultState(JSON.parse(raw))
     } catch (e) {}
   }, [])
