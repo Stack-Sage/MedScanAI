@@ -34,7 +34,7 @@ export default function Home() {
 					transition={{ duration: 0.6, ease: "easeOut" }}
 					className="mx-auto w-full max-w-[1400px] grid grid-cols-1 lg:grid-cols-3 gap-8"
 				>
-					{/* Main column: Upload + How it works + Features */}
+			
 					<div className="lg:col-span-2 flex flex-col gap-8">
 						<motion.section
 							initial={{ opacity: 0, scale: 0.99 }}
