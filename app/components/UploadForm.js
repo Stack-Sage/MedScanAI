@@ -3,13 +3,15 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGlobal } from '../context/GlobalContext'
 import axios from 'axios'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
+import Tooltip from './Tooltip'
 
-export default function UploadForm() {
+export default function UploadForm(props) {
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState('')
+  const [success, setSuccess] = useState(false)
   const { setLastResult } = useGlobal()
   const router = useRouter()
   const previewRef = useRef(null)
@@ -59,6 +61,8 @@ export default function UploadForm() {
       fd.append('note', note)
       const res = await axios.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
       setLastResult(res.data)
+      setSuccess(true)
+      setTimeout(() => setSuccess(false), 1800)
       router.push('/results')
     } catch (e) {
       console.error(e)
@@ -68,88 +72,232 @@ export default function UploadForm() {
     }
   }, [file, note, setLastResult, router, loading])
 
+  // Use theme for light/dark styling
+  const { theme } = require('../context/ThemeContext').useTheme();
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.97 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.7, ease: 'easeOut' }}
-      className={`bg-white rounded-xl shadow-lg p-6 flex flex-col gap-4 border border-zinc-100 transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
-    >
+    <div className="flex items-center justify-center min-h-[60vh]">
       <motion.div
-        initial={{ opacity: 0, x: -32 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
+        initial={{ opacity: 0, y: 40, scale: 0.97 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: 'easeOut' }}
+        className={`relative rounded-2xl shadow-2xl p-6 flex flex-col gap-4 border transition-all duration-700 ease-out overflow-hidden
+          ${theme === 'dark'
+            ? 'bg-gradient-to-br from-[#101624] via-[#18181b] to-[#0e172a] border-cyan-800 text-cyan-100 backdrop-blur-lg'
+            : 'bg-gradient-to-br from-white via-sky-100 to-blue-100 border-sky-200 text-sky-900 backdrop-blur-[2px]'}
+          ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
+        `}
+        style={
+          theme === 'dark'
+            ? {
+                boxShadow: '0 8px 32px 0 #0ea5e9cc, 0 1.5px 8px 0 #22d3ee77',
+                backgroundImage: 'linear-gradient(120deg, #101624 0%, #18181b 60%, #0e172a 100%)',
+                backgroundBlendMode: 'screen',
+                borderColor: '#0ea5e9',
+                color: '#e0f2fe'
+              }
+            : {
+                boxShadow: '0 8px 32px 0 #bae6fdcc, 0 1.5px 8px 0 #7dd3fcbb',
+                backgroundImage: 'linear-gradient(120deg, #f0f9ff 0%, #bae6fd 100%)',
+                backgroundBlendMode: 'normal'
+              }
+        }
+        whileHover={{
+          scale: 1.04,
+          boxShadow: theme === 'dark'
+            ? "0 12px 40px 0 #22d3eecc, 0 1.5px 8px 0 #0ea5e9cc"
+            : "0 8px 32px 0 #22d3ee44"
+        }}
+        whileTap={{ scale: 0.98 }}
       >
-        <h2 className="text-xl font-bold text-blue-700 mb-1">Upload your scan</h2>
-        <p className="text-sm text-zinc-600 mb-2">
-          Supported: <span className="font-medium">PNG, JPG, DICOM</span> (converted). Max size 10MB.
-        </p>
+        {/* Animated border glow */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          viewport={{ once: true, amount: 0.7 }}
-          transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
-          className="bg-blue-50 border border-blue-100 rounded-lg p-3 mb-2 text-blue-700 text-sm"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 0.5 }}
+          transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
+          className={`pointer-events-none absolute -inset-1 rounded-2xl z-0 ${
+            theme === 'dark'
+              ? ''
+              : 'bg-gradient-to-br from-blue-100 via-sky-100 to-white'
+          }`}
+          style={{
+            background: theme === 'dark'
+              ? "radial-gradient(circle at 60% 40%, #0ea5e9 0%, #101624 80%, #09090b 100%)"
+              : "radial-gradient(circle at 60% 40%, #bae6fd 0%, #f0f9ff 60%, transparent 100%)",
+            filter: "blur(24px)",
+            opacity: theme === 'light' ? 0.7 : 0.85
+          }}
+        />
+        {/* Success animation */}
+        <AnimatePresence>
+          {success && (
+            <motion.div
+              initial={{ opacity: 0, scale: 0.7 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.7 }}
+              transition={{ duration: 0.5 }}
+              className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 rounded-2xl"
+            >
+              <motion.div
+                initial={{ scale: 0.7 }}
+                animate={{ scale: 1.1 }}
+                transition={{ type: "spring", stiffness: 300, damping: 12 }}
+                className="flex flex-col items-center"
+              >
+                <svg width="64" height="64" fill="none" viewBox="0 0 64 64">
+                  <circle cx="32" cy="32" r="30" stroke="#38bdf8" strokeWidth="4" fill="#0ea5e9" />
+                  <motion.path
+                    d="M20 34l8 8 16-16"
+                    stroke="#fff"
+                    strokeWidth="4"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    initial={{ pathLength: 0 }}
+                    animate={{ pathLength: 1 }}
+                    transition={{ duration: 0.7, delay: 0.2 }}
+                  />
+                </svg>
+                <div className="mt-2 text-lg font-bold text-blue-100">Uploaded!</div>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+        <motion.div
+          initial={{ opacity: 0, x: -32 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
         >
-          <b>Demo:</b> You can upload any image file for a simulated AI analysis.<br />
-          <span className="text-blue-500">Your data is never stored permanently.</span>
+          <h2 className="text-xl font-bold text-zinc-100 mb-1">Upload your scan</h2>
+          <p className="text-sm text-zinc-400 mb-2">
+            Supported: <span className="font-medium">PNG, JPG, DICOM</span> (converted). Max size 10MB.
+          </p>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true, amount: 0.7 }}
+            transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
+            className={`border rounded-lg p-3 mb-2 text-sm ${
+              theme === 'dark'
+                ? 'bg-gradient-to-br from-[#18181b]/80 to-[#0e172a]/80 border-cyan-800 text-cyan-100 shadow-cyan-900/30'
+                : 'bg-white/80 border-sky-200 text-sky-900 shadow-blue-100/40'
+            }`}
+            style={theme === 'light' ? { backdropFilter: 'blur(2px)' } : { backdropFilter: 'blur(4px)' }}
+          >
+            <b>Demo:</b> You can upload any image file for a simulated AI analysis.<br />
+            <span className="text-cyan-400">Your data is never stored permanently.</span>
+          </motion.div>
         </motion.div>
+        {/* Floating label input with tooltip */}
+        <div className="relative mt-2">
+          <Tooltip text="Upload a scan image (PNG, JPG, DICOM). Max 10MB.">
+            <input
+              type="file"
+              accept="image/*"
+              onChange={onFile}
+              className={`peer block w-full mt-1 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold transition-all duration-300 bg-transparent
+                ${theme === 'dark'
+                  ? 'text-cyan-100 file:bg-[#101624] file:text-cyan-100 hover:file:bg-cyan-900/60 focus:file:bg-cyan-800/60 border-cyan-800'
+                  : 'text-sky-900 file:bg-blue-100 file:text-sky-900 hover:file:bg-sky-100 focus:file:bg-sky-50'}
+              `}
+              style={theme === 'dark'
+                ? { boxShadow: '0 1px 8px 0 #0ea5e9cc', border: '1.5px solid #0891b2' }
+                : { boxShadow: '0 1px 8px 0 #bae6fdcc' }
+              }
+            />
+          </Tooltip>
+          <label className={`absolute left-2 -top-4 text-xs transition-all peer-focus:-top-5 ${
+            theme === 'dark' ? 'text-cyan-400 peer-focus:text-cyan-300' : 'text-sky-700 peer-focus:text-sky-900'
+          }`}>
+            Scan file
+          </label>
+        </div>
+        {preview && (
+          <motion.img
+            src={preview}
+            alt="preview"
+            className={`rounded-lg border max-w-[180px] max-h-[180px] mx-auto my-2 shadow-lg object-contain ${
+              theme === 'dark' ? 'border-cyan-800 bg-[#18181b]' : 'border-zinc-800'
+            }`}
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.6, ease: 'easeOut' }}
+            style={{ opacity: visible ? 1 : 0 }}
+          />
+        )}
+        {/* Floating label textarea with tooltip */}
+        <div className="relative">
+          <Tooltip text="Add any notes or symptoms for more accurate analysis.">
+            <textarea
+              value={note}
+              onChange={e => setNote(e.target.value)}
+              placeholder=" "
+              className={`peer w-full mt-1 rounded-lg border p-2 placeholder-transparent resize-vertical min-h-[80px] focus:outline-none focus:ring-2 transition-all duration-300
+                ${theme === 'dark'
+                  ? 'border-cyan-800 bg-[#18181b]/60 text-cyan-100 focus:ring-cyan-400'
+                  : 'border-sky-200 bg-white/80 text-sky-900 focus:ring-sky-300'}
+              `}
+              style={theme === 'dark'
+                ? { boxShadow: '0 1px 8px 0 #0ea5e9cc', backdropFilter: 'blur(4px)' }
+                : { boxShadow: '0 1px 8px 0 #bae6fdcc', backdropFilter: 'blur(2px)' }
+              }
+            />
+          </Tooltip>
+          <label className={`absolute left-2 top-2 text-xs pointer-events-none transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-xs peer-focus:-top-4 peer-focus:text-xs ${
+            theme === 'dark' ? 'text-cyan-400 peer-focus:text-cyan-300' : 'text-sky-700 peer-focus:text-sky-900'
+          }`}>
+            Additional info
+          </label>
+        </div>
+        <div className="flex flex-col gap-2 mt-2">
+          <Tooltip text="Submit your scan for instant AI analysis.">
+            <motion.button
+              whileTap={{ scale: 0.95, backgroundColor: "#0e7490" }}
+              whileHover={{
+                scale: 1.09,
+                backgroundColor: "#0891b2",
+                boxShadow: theme === 'dark'
+                  ? "0 0 0 6px #22d3ee55"
+                  : "0 0 0 4px #22d3ee55"
+              }}
+              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              className={`btn font-semibold py-2 rounded-lg transition-all duration-300 shadow-lg
+                ${theme === 'dark'
+                  ? 'bg-gradient-to-r from-cyan-700 via-cyan-800 to-cyan-900 hover:from-cyan-600 hover:to-cyan-800 text-white shadow-cyan-900/40 border border-cyan-400'
+                  : 'bg-gradient-to-r from-sky-400 via-blue-400 to-cyan-500 hover:from-sky-500 hover:to-blue-400 text-white shadow-blue-200/40 border border-sky-300'}
+              `}
+              style={theme === 'dark'
+                ? { boxShadow: '0 2px 16px 0 #0ea5e9cc' }
+                : { boxShadow: '0 2px 12px 0 #bae6fdcc' }
+              }
+              onClick={submit}
+              disabled={loading || !file}
+            >
+              {loading ? (
+                <motion.span
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.3, repeat: Infinity, repeatType: "reverse" }}
+                  className="inline-block animate-spin mr-2"
+                >⏳</motion.span>
+              ) : 'Submit'}
+            </motion.button>
+          </Tooltip>
+          <span className={`text-xs ${theme === 'dark' ? 'text-cyan-300' : 'text-sky-700'}`}>
+            Your scan is processed securely and never shared.
+          </span>
+        </div>
+        <div className="mt-4 flex flex-col gap-1">
+          <Tooltip text="Need help? Click for upload tips.">
+            <button
+              className={`text-xs underline hover:text-cyan-400 transition-colors duration-200 ${theme === 'dark' ? 'text-cyan-300' : 'text-sky-700'}`}
+              onClick={() => alert('Tips:\n- Upload clear scan images\n- Add notes for better results\n- Supported: PNG, JPG, DICOM\n- Max file size: 10MB')}
+              type="button"
+            >
+              Need help with uploading?
+            </button>
+          </Tooltip>
+        </div>
       </motion.div>
-      <label className="block">
-        <span className="text-zinc-700 text-sm font-medium">Scan file</span>
-        <input
-          type="file"
-          accept="image/*"
-          onChange={onFile}
-          className="block w-full mt-1 text-sm text-zinc-700 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-        />
-      </label>
-      {preview && (
-        <motion.img
-          src={preview}
-          alt="preview"
-          className="rounded-lg border border-zinc-200 max-w-xs mx-auto my-2"
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          style={{ opacity: visible ? 1 : 0 }}
-        />
-      )}
-      <label className="block">
-        <span className="text-zinc-700 text-sm font-medium">Additional info</span>
-        <textarea
-          value={note}
-          onChange={e => setNote(e.target.value)}
-          placeholder="Add context (age, symptoms, relevant history)..."
-          className="w-full mt-1 rounded-lg border border-zinc-200 bg-zinc-50 p-2 text-zinc-900 resize-vertical min-h-[80px]"
-        />
-      </label>
-      <div className="flex flex-col gap-2">
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          whileHover={{ scale: 1.03 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          className="btn bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 rounded-lg transition-colors"
-          onClick={submit}
-          disabled={loading || !file}
-        >
-          {loading ? 'Analyzing...' : 'Submit'}
-        </motion.button>
-        <span className="text-xs text-zinc-400">
-          Your scan is processed securely and never shared.
-        </span>
-      </div>
-      <motion.div
-        initial={{ opacity: 0, y: 32 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.7, delay: 0.2, ease: 'easeOut' }}
-        className="mt-4 text-xs text-zinc-500 border-t pt-3"
-      >
-        <b>Need help?</b> Email <a href="mailto:support@medscan.ai" className="text-blue-600 underline">support@medscan.ai</a>
-        <br />
-        <span className="italic">Try uploading a sample scan to see how MedScan AI works!</span>
-      </motion.div>
-    </motion.div>
+    </div>
   )
 }

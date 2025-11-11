@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import axios from 'axios'
 
 export async function POST(req) {
   try {
@@ -14,7 +15,6 @@ export async function POST(req) {
     formToPy.append('scan', buffer, { filename: scan.name || 'upload.bin' })
     formToPy.append('note', note)
 
-    const axios = (await import('axios')).default
     const pythonApi = process.env.PYTHON_API || 'http://localhost:8000/analyze'
     const pyResp = await axios.post(pythonApi, formToPy, { headers: formToPy.getHeaders(), timeout: 120000 })
     const analysis = pyResp.data || {}

@@ -1,30 +1,22 @@
 'use client'
-import React, { createContext, useContext, useEffect, useState } from 'react'
+import React, { createContext, useContext, useState } from 'react'
 
-const GlobalContext = createContext({ lastResult: null, setLastResult: () => {} })
+const GlobalContext = createContext(null)
 
 export function GlobalProvider({ children }) {
-  const [lastResult, setLastResultState] = useState(null)
+	// shared state for Gemini response and last upload result
+	const [geminiResponse, setGeminiResponse] = useState(null)
+	const [lastResult, setLastResult] = useState(null)
 
-  useEffect(() => {
-    try {
-      const raw = localStorage.getItem('lastResult')
-      // eslint-disable-next-line react-hooks/set-state-in-effect
-      if (raw) setLastResultState(JSON.parse(raw))
-    } catch (e) {}
-  }, [])
-
-  const setLastResult = (r) => {
-    try {
-      if (r) localStorage.setItem('lastResult', JSON.stringify(r))
-      else localStorage.removeItem('lastResult')
-    } catch (e) {}
-    setLastResultState(r)
-  }
-
-  return <GlobalContext.Provider value={{ lastResult, setLastResult }}>{children}</GlobalContext.Provider>
+	return (
+		<GlobalContext.Provider value={{ geminiResponse, setGeminiResponse, lastResult, setLastResult }}>
+			{children}
+		</GlobalContext.Provider>
+	)
 }
 
 export function useGlobal() {
-  return useContext(GlobalContext)
+	const ctx = useContext(GlobalContext)
+	if (!ctx) throw new Error('useGlobal must be used within GlobalProvider')
+	return ctx
 }
