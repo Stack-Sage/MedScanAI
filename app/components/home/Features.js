@@ -22,8 +22,8 @@ export default function Features() {
     <section
       className={`w-full py-12 px-4 ${
         theme === 'dark'
-          ? 'bg-gradient-to-br from-[#0a0f1a] via-[#111827] to-[#0e172a] text-cyan-100'
-          : 'bg-gradient-to-br from-white via-sky-100 to-blue-100 text-sky-900'
+          ? 'bg-linear-to-br from-[#0a0f1a] via-[#111827] to-[#0e172a] text-cyan-100'
+          : 'bg-linear-to-br from-white via-sky-100 to-blue-100 text-sky-900'
       }`}
       style={
         theme === 'dark'
