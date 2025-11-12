@@ -1,5 +1,5 @@
 'use client'
-import { useTheme } from "../context/ThemeContext"
+
 import Tooltip from "../components/Tooltip"
 
 export default function About() {
