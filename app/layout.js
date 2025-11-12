@@ -8,8 +8,45 @@ export const metadata = {
   title: "MedScan AI",
   description: "Upload scans and get analysis with guidance",
 }
+  
 
-// Add animated falling lines/stars with 3D parallax effect using mouse movement
+  if (typeof window !== "undefined" && !window.__medscan_pwa) {
+    window.__medscan_pwa = true;
+
+    const addLink = (attrs) => {
+      const l = document.createElement('link');
+      Object.entries(attrs).forEach(([k, v]) => l.setAttribute(k, v));
+      document.head.appendChild(l);
+    };
+
+    const addMeta = (attrs) => {
+      const m = document.createElement('meta');
+      Object.entries(attrs).forEach(([k, v]) => m.setAttribute(k, v));
+      document.head.appendChild(m);
+    };
+
+    // PWA manifest and icons (create /manifest.json and icons in public/)
+    addLink({ rel: 'manifest', href: '/manifest.json' });
+    addLink({ rel: 'icon', href: '/icons/icon-192x192.png', sizes: '192x192' });
+    addLink({ rel: 'icon', href: '/icons/icon-512x512.png', sizes: '512x512' });
+    addLink({ rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png', sizes: '180x180' });
+
+    // Mobile / iOS related meta
+    addMeta({ name: 'theme-color', content: '#0f172a' });
+    addMeta({ name: 'mobile-web-app-capable', content: 'yes' });
+    addMeta({ name: 'apple-mobile-web-app-capable', content: 'yes' });
+    addMeta({ name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' });
+    addMeta({ name: 'apple-mobile-web-app-title', content: 'MedScan AI' });
+
+    // Register service worker (create /sw.js in public/)
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch(() => { /* fail silently */ });
+    }
+  }
+
+
+
+
 if (typeof window !== "undefined" && !window.__medscan_bg_canvas) {
   window.__medscan_bg_canvas = true;
   setTimeout(() => {
