@@ -1,3 +1,4 @@
+'use client'
 import { useTheme } from "../context/ThemeContext"
 import Tooltip from "../components/Tooltip"
 
@@ -8,8 +9,8 @@ export default function About() {
     <div
       className={`min-h-screen flex flex-col items-center justify-center px-6 py-16 font-sans transition-colors duration-500 ${
         theme === 'dark'
-          ? 'bg-gradient-to-br from-[#0a0f1a] via-[#111827] to-[#0e172a] text-cyan-100'
-          : 'bg-gradient-to-br from-white via-sky-100 to-blue-100 text-sky-900'
+          ? 'bg-linear-to-br from-[#0a0f1a] via-[#111827] to-[#0e172a] text-cyan-100'
+          : 'bg-linear-to-br from-white via-sky-100 to-blue-100 text-sky-900'
       }`}
       style={
         theme === 'dark'
@@ -26,7 +27,7 @@ export default function About() {
     >
       <div className={`max-w-2xl w-full rounded-2xl shadow-2xl border p-8 mx-auto transition-all duration-500
         ${theme === 'dark'
-          ? 'bg-gradient-to-br from-[#18181b]/90 to-[#0e172a]/90 border-cyan-800 text-cyan-100 backdrop-blur-md'
+          ? 'bg-linear-to-br from-[#18181b]/90 to-[#0e172a]/90 border-cyan-800 text-cyan-100 backdrop-blur-md'
           : 'bg-white/80 border-sky-200 text-sky-900 backdrop-blur-[2px]'}`}>
         <div className="flex items-center gap-2 mb-4">
           <h1 className={`text-3xl font-bold ${theme === 'dark' ? 'text-cyan-300 drop-shadow-lg' : 'text-sky-700'}`}>
