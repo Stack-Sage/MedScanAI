@@ -56,11 +56,33 @@ export default function UploadForm(props) {
     if (!file || loading) return
     setLoading(true)
     try {
+      // 1. Upload image to MedScanAI backend
       const fd = new FormData()
-      fd.append('scan', file)
-      fd.append('note', note)
-      const res = await axios.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-      setLastResult(res.data)
+      fd.append('file', file)
+      const predictRes = await axios.post(
+        'https://medscanaibackend-production.up.railway.app/api/predict',
+        fd,
+        { headers: { 'Content-Type': 'multipart/form-data' } }
+      )
+      const predictData = predictRes.data
+
+      // 2. Prepare Gemini prompt using backend response and note
+      const geminiInput = {
+        diagnosis: predictData.label || "Unknown",
+        confidence: predictData.confidence || 0,
+        meta: {
+          filename: predictData.filename,
+          note: note || "",
+        },
+        summary: `AI detected: ${predictData.label} (confidence: ${predictData.confidence}%)`
+      }
+
+      // 3. Call Gemini API (via /components/content.js)
+      const { getContent } = require('./content').default()
+      const geminiRes = await getContent(geminiInput)
+
+      // 4. Save result and store the uploaded file for preview in results
+      setLastResult({ ...geminiInput, gemini: geminiRes, file }) // <-- store file in result
       setSuccess(true)
       setTimeout(() => setSuccess(false), 1800)
       router.push('/results')
