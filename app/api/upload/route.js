@@ -1,12 +1,17 @@
 import { NextResponse } from 'next/server'
 import axios from 'axios'
 
+// In-memory store (ephemeral in serverless)
+const scansStore = []
+
 export async function POST(req) {
   try {
     const form = await req.formData()
     const scan = form.get('scan')
     const note = form.get('note')?.toString() || ''
-    if (!scan || !scan.arrayBuffer) return NextResponse.json({ error: 'no file' }, { status: 400 })
+    if (!scan || !scan.arrayBuffer) {
+      return NextResponse.json({ error: 'no file' }, { status: 400 })
+    }
 
     const buffer = Buffer.from(await scan.arrayBuffer())
 
@@ -24,21 +29,26 @@ export async function POST(req) {
     try {
       const s = await axios.post(summaryApi, { diagnosis: analysis.diagnosis, meta: analysis.meta }, { timeout: 30000 })
       summary = s.data.summary || ''
-    } catch (e) {
+    } catch {
       summary = 'Summary service unavailable'
     }
 
-    const { MongoClient } = await import('mongodb')
-    const uri = process.env.MONGODB_URI || 'mongodb://localhost:27017'
-    const client = new MongoClient(uri)
-    await client.connect()
-    const db = client.db(process.env.MONGODB_DB || 'medscan')
-    const doc = { uploadedAt: new Date().toISOString(), note, analysis, summary }
-    await db.collection('scans').insertOne(doc)
-    await client.close()
+    const doc = {
+      uploadedAt: new Date().toISOString(),
+      note,
+      analysis,
+      summary
+    }
+    scansStore.push(doc) // ephemeral storage
 
     return NextResponse.json(
-      { diagnosis: analysis.diagnosis, confidence: analysis.confidence, meta: analysis.meta, summary, uploadedAt: doc.uploadedAt },
+      {
+        diagnosis: analysis.diagnosis,
+        confidence: analysis.confidence,
+        meta: analysis.meta,
+        summary,
+        uploadedAt: doc.uploadedAt
+      },
       { status: 200 }
     )
   } catch (err) {
