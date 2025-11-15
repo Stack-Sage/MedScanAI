@@ -79,74 +79,123 @@ function DiagnosisInfo({ diagnosis, confidence }) {
 
 function cleanLine(l) {
   return l
-    .replace(/^[*\-•\d]+\s*/,'')    // leading symbols, numbers
-    .replace(/\s{2,}/g,' ')
+    .replace(/^[\s>*•\-–—]+/, '')           // leading symbols
+    .replace(/^\d+\.\s*/, '')               // leading numbering
+    .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+function parseByHeadings(raw) {
+  const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+  const headingMap = {
+    symptoms: ['common symptoms', 'symptoms'],
+    causes: ['primary causes', 'causes'],
+    diagnosis: ['diagnosis', 'diagnosed', 'how is this disease typically diagnosed'],
+    treatment: ['treatment options', 'treatment']
+  };
+  const canonicalOrder = ['symptoms', 'causes', 'diagnosis', 'treatment'];
+  let current = null;
+  const buckets = { symptoms: [], causes: [], diagnosis: [], treatment: [] };
+
+  const isHeading = (line) => {
+    const base = line.toLowerCase().replace(/[:\-]+$/, '');
+    return Object.entries(headingMap).find(([key, variants]) =>
+      variants.some(v => base.startsWith(v))
+    );
+  };
+
+  for (let line of lines) {
+    const headingMatch = isHeading(line);
+    if (headingMatch) {
+      current = headingMatch[0];
+      continue;
+    }
+    if (current) {
+      // Stop if line looks like next heading
+      const nextHeading = isHeading(line);
+      if (nextHeading) {
+        current = nextHeading[0];
+        continue;
+      }
+      if (line.length) buckets[current].push(cleanLine(line));
+    }
+  }
+
+  // Fallback: if sections empty but content exists, try bullet grouping
+  const allNonEmpty = lines.filter(l => l && !isHeading(l)).map(cleanLine);
+  if (canonicalOrder.every(k => buckets[k].length === 0) && allNonEmpty.length) {
+    const quarter = Math.ceil(allNonEmpty.length / 4);
+    buckets.symptoms = allNonEmpty.slice(0, quarter);
+    buckets.causes = allNonEmpty.slice(quarter, quarter * 2);
+    buckets.diagnosis = allNonEmpty.slice(quarter * 2, quarter * 3);
+    buckets.treatment = allNonEmpty.slice(quarter * 3);
+  }
+
+  return canonicalOrder.map((key, i) => ({
+    title: ['Symptoms', 'Causes', 'Diagnosis', 'Treatment'][i],
+    points: buckets[key].length ? buckets[key].slice(0, 12) : ['No data']
+  }));
 }
 
 function buildCardsFromGemini(raw) {
   if (!raw) return [];
-  const text = raw.replace(/\r/g,'').trim();
+  const text = raw.replace(/\r/g, '').trim();
 
-  // Normalize headings (may start with "1." or just the question text)
-  const questionOrder = [
-    'What are the common symptoms',
-    'What are the primary causes',
-    'How is this disease typically diagnosed',
-    'What treatment options are available'
-  ];
+  // First attempt: numbered sections pattern (existing logic)
+  const numberedRegex = /(?:\d+\.\s*)([^\n:]+):?([\s\S]*?)(?=(?:\d+\.\s*[^\n:]+:?|$))/g;
+  const found = [];
+  let m;
+  while ((m = numberedRegex.exec(text)) !== null) {
+    const titleRaw = cleanLine(m[1]);
+    const body = m[2]
+      .split('\n')
+      .map(cleanLine)
+      .filter(Boolean);
+    found.push({ title: titleRaw, points: body });
+  }
 
-  // Split by numbered headings
-  const sections = text
-    .split(/\n(?=\d+\s*\.)/) // keep numbered groups
-    .map(s => s.trim())
-    .filter(Boolean);
-
-  // Map question keyword to collected lines
-  const lookup = {};
-  sections.forEach(sec => {
-    // Extract heading line
-    const firstLine = sec.split('\n')[0];
-    const heading = firstLine
-      .replace(/^\d+\s*\.\s*/,'')
-      .replace(/[:]*$/,'')
-      .toLowerCase();
-
-    const matchKey = questionOrder.find(q =>
-      heading.startsWith(q.toLowerCase())
+  // Map numbered detection to canonical if possible
+  const keyMap = {
+    symptoms: ['symptoms'],
+    causes: ['causes'],
+    diagnosis: ['diagnosis'],
+    treatment: ['treatment']
+  };
+  const canonical = { symptoms: [], causes: [], diagnosis: [], treatment: [] };
+  found.forEach(sec => {
+    const low = sec.title.toLowerCase();
+    const matchKey = Object.entries(keyMap).find(([k, arr]) =>
+      arr.some(v => low.includes(v))
     );
     if (matchKey) {
-      const bodyLines = sec
-        .split('\n')
-        .slice(1) // skip heading
-        .map(cleanLine)
-        .filter(l => l.length && !/^AI Health Guidance/i.test(l));
-      lookup[matchKey] = bodyLines;
+      canonical[matchKey[0]] = canonical[matchKey[0]].concat(sec.points);
     }
   });
 
-  // Fallback: if Gemini returned bullets without numbered headings
-  if (Object.keys(lookup).length === 0) {
-    // Try naive split by headings inside raw text
-    questionOrder.forEach(q => {
-      const r = new RegExp(q + '.*?(?:\\n|$)','i');
-      if (r.test(text)) {
-        // crude extraction
-        const after = text.split(r)[1] || '';
-        const lines = after.split('\n').slice(0,8)
-          .map(cleanLine).filter(Boolean);
-        lookup[q] = lines;
-      }
-    });
+  const numberedResult = ['symptoms','causes','diagnosis','treatment'].map((k,i)=>({
+    title: ['Symptoms','Causes','Diagnosis','Treatment'][i],
+    points: canonical[k].length ? canonical[k].slice(0,12) : []
+  }));
+
+  const haveData = numberedResult.some(c => c.points.length);
+
+  // If numbered parse failed, fall back to heading-based parse
+  if (!haveData) {
+    return parseByHeadings(text);
   }
 
-  // Build exactly four cards (empty arrays if missing)
-  return questionOrder.map((q,i) => ({
-    title: ['Symptoms','Causes','Diagnosis','Treatment'][i],
-    points: (lookup[q] && lookup[q].length ? lookup[q].slice(0,8) : ['No data'])
+  // Fill empties with fallback heading parse if some missing
+  const fallbackParsed = parseByHeadings(text);
+  return numberedResult.map((c, idx) => {
+    if (!c.points.length) return fallbackParsed[idx];
+    return c;
+  }).map(c => ({
+    ...c,
+    points: c.points.map(p => cleanLine(p)).filter(Boolean).length ? c.points : ['No data']
   }));
 }
 
+// GuidanceCard unchanged except we ensure cleanLine applied before display
 function GuidanceCard({ title, points, theme }) {
   return (
     <motion.div
@@ -162,10 +211,7 @@ function GuidanceCard({ title, points, theme }) {
           ? "linear-gradient(135deg, #18181b 60%, #0e7490 100%)"
           : "linear-gradient(135deg, #e0f2fe 60%, #38bdf8 100%)",
         color: theme === 'dark' ? "#e0f2fe" : undefined,
-        transition: {
-          duration: 0.14,
-          ease: [0.4, 0, 0.2, 1]
-        }
+        transition: { duration: 0.14, ease: [0.4,0,0.2,1] }
       }}
       whileTap={{
         scale: 0.97,
@@ -178,29 +224,11 @@ function GuidanceCard({ title, points, theme }) {
         ${theme === 'dark'
           ? 'bg-gradient-to-br from-[#18181b]/90 to-[#0e172a]/90 border-cyan-800 text-cyan-100 backdrop-blur-md'
           : 'bg-gradient-to-br from-white via-sky-100 to-blue-100 border-sky-200 text-sky-900 backdrop-blur-[2px]'}
-
       `}
-      style={
-        theme === 'dark'
-          ? {
-              boxShadow: '0 8px 32px 0 #0ea5e988, 0 1.5px 8px 0 #22d3ee55',
-              backgroundImage: 'linear-gradient(120deg, #18181b 0%, #0ea5e9 100%)',
-              backgroundBlendMode: 'screen',
-              borderColor: '#0ea5e9',
-              color: '#e0f2fe',
-              transformStyle: 'preserve-3d'
-            }
-          : {
-              boxShadow: '0 8px 32px 0 #bae6fdcc, 0 1.5px 8px 0 #a7f3d0cc',
-              backgroundImage: 'linear-gradient(120deg, #f0f9ff 0%, #bae6fd 100%)',
-              backgroundBlendMode: 'normal',
-              transformStyle: 'preserve-3d'
-            }
-      }
     >
       <div className="flex items-center gap-3 mb-2 z-10 relative">
         <span className="text-lg font-bold">{title}</span>
-        <Tooltip text="This section summarizes a key aspect of your scan analysis." position="right">
+        <Tooltip text={`AI guidance: ${title}`} position="right">
           <svg className="w-4 h-4 text-cyan-400 ml-1 cursor-pointer" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 20 20">
             <circle cx="10" cy="10" r="9" />
             <path d="M10 7v3m0 4h.01" />
@@ -211,13 +239,10 @@ function GuidanceCard({ title, points, theme }) {
         className="pl-5 list-disc space-y-1 text-zinc-100/90 z-10 relative"
         initial="hidden"
         animate="visible"
-        variants={{
-          hidden: {},
-          visible: { transition: { staggerChildren: 0.08 } }
-        }}
+        variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
       >
         <AnimatePresence>
-          {points.map((pt, i) => (
+          {points.map((pt,i)=>(
             <motion.li
               key={i}
               initial={{ opacity: 0, x: 24 }}
@@ -225,8 +250,8 @@ function GuidanceCard({ title, points, theme }) {
               exit={{ opacity: 0, x: -24 }}
               transition={{ duration: 0.3, ease: "easeOut" }}
             >
-              <Tooltip text="This is an AI-generated point. For more info, consult a doctor." position="right">
-                {pt.replace(/^\*+\s*/, '')}
+              <Tooltip text="AI-generated. Not medical advice." position="right">
+                {cleanLine(pt)}
               </Tooltip>
             </motion.li>
           ))}
@@ -251,12 +276,7 @@ function GuidanceCards({ cards, theme }) {
       variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
     >
       {cards.map((card, idx) => (
-        <GuidanceCard
-          key={idx}
-          title={card.title}
-          points={card.points.map(p => cleanLine(p))}
-          theme={theme}
-        />
+        <GuidanceCard key={idx} title={card.title} points={card.points} theme={theme} />
       ))}
     </motion.div>
   );
@@ -294,12 +314,8 @@ export default function ResultCard({ result: propResult }) {
   }, [geminiResponse, result]);
 
   useEffect(() => {
-    if (!text) {
-      setCards([]);
-      return;
-    }
-    const built = buildCardsFromGemini(text);
-    setCards(built);
+    if (!text) { setCards([]); return; }
+    setCards(buildCardsFromGemini(text));
   }, [text]);
 
   if (!result) return null;
