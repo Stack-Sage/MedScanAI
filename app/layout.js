@@ -3,6 +3,7 @@ import './index.css'
 import Navbar from './components/Navbar'
 import { GlobalProvider } from './context/GlobalContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { useEffect, useState } from 'react'
 
 export const metadata = {
   title: "MedScan AI",
@@ -10,42 +11,92 @@ export const metadata = {
 }
   
 
+  // Inject PWA tags (add type/sizes/purpose to improve install detection)
   if (typeof window !== "undefined" && !window.__medscan_pwa) {
     window.__medscan_pwa = true;
-
     const addLink = (attrs) => {
       const l = document.createElement('link');
       Object.entries(attrs).forEach(([k, v]) => l.setAttribute(k, v));
       document.head.appendChild(l);
     };
-
     const addMeta = (attrs) => {
       const m = document.createElement('meta');
       Object.entries(attrs).forEach(([k, v]) => m.setAttribute(k, v));
       document.head.appendChild(m);
     };
 
-    // PWA manifest and icons (create /manifest.json and icons in public/)
-    addLink({ rel: 'manifest', href: '/manifest.json' });
-    addLink({ rel: 'icon', href: '/icons/icon-192x192.png', sizes: '192x192' });
-    addLink({ rel: 'icon', href: '/icons/icon-512x512.png', sizes: '512x512' });
+    addLink({ rel: 'manifest', href: '/manifest.json', type: 'application/manifest+json', crossOrigin: 'use-credentials' });
+    // SVG or PNG icons (ensure these files exist in /public/icons/)
+    addLink({ rel: 'icon', href: '/icons/logo.svg', sizes: 'any', type: 'image/svg+xml' });
+    addLink({ rel: 'icon', href: '/icons/icon-192x192.png', sizes: '192x192', type: 'image/png' });
+    addLink({ rel: 'icon', href: '/icons/icon-512x512.png', sizes: '512x512', type: 'image/png' });
     addLink({ rel: 'apple-touch-icon', href: '/icons/apple-touch-icon.png', sizes: '180x180' });
-
-    // Mobile / iOS related meta
     addMeta({ name: 'theme-color', content: '#0f172a' });
-    addMeta({ name: 'mobile-web-app-capable', content: 'yes' });
+    addMeta({ name: 'application-name', content: 'MedScan AI' });
     addMeta({ name: 'apple-mobile-web-app-capable', content: 'yes' });
     addMeta({ name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' });
-    addMeta({ name: 'apple-mobile-web-app-title', content: 'MedScan AI' });
 
-    // Register service worker (create /sw.js in public/)
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('/sw.js').catch(() => { /* fail silently */ });
+      navigator.serviceWorker.register('/sw.js').catch(() => {});
     }
   }
 
+  // Minimal install prompt component
+  function PWAInstallPrompt() {
+    const [deferred, setDeferred] = useState(null);
+    const [visible, setVisible] = useState(false);
 
+    useEffect(() => {
+      const handler = (e) => {
+        e.preventDefault();
+        setDeferred(e);
+        setVisible(true);
+      };
+      window.addEventListener('beforeinstallprompt', handler);
+      // Hide if already installed
+      window.addEventListener('appinstalled', () => {
+        setVisible(false);
+        setDeferred(null);
+      });
+      return () => {
+        window.removeEventListener('beforeinstallprompt', handler);
+      };
+    }, []);
 
+    const install = async () => {
+      if (!deferred) return;
+      deferred.prompt();
+      const choice = await deferred.userChoice;
+      setDeferred(null);
+      if (choice.outcome !== 'accepted') {
+        // Keep button available if user dismissed
+        setTimeout(() => setDeferred(null), 0);
+      } else {
+        setVisible(false);
+      }
+    };
+
+    if (!visible) return null;
+
+    return (
+      <motion.button
+        onClick={install}
+        initial={{ opacity: 0, y: 30, scale: 0.9 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        exit={{ opacity: 0, y: 20 }}
+        whileHover={{ scale: 1.08 }}
+        whileTap={{ scale: 0.95 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+        className="fixed bottom-5 right-5 z-50 px-4 py-2 rounded-xl font-medium shadow-lg border backdrop-blur-md
+          bg-gradient-to-r from-cyan-600 to-cyan-800 border-cyan-400 text-white
+          hover:from-cyan-500 hover:to-cyan-700 hover:shadow-cyan-500/40
+          active:scale-95 transition-all"
+        aria-label="Install MedScan AI"
+      >
+        Install App
+      </motion.button>
+    );
+  }
 
 if (typeof window !== "undefined" && !window.__medscan_bg_canvas) {
   window.__medscan_bg_canvas = true;
@@ -184,6 +235,7 @@ export default function RootLayout({ children }) {
           <GlobalProvider>
             <Navbar />
             {children}
+            <PWAInstallPrompt /> {/* Added install button */}
           </GlobalProvider>
         </ThemeProvider>
       </body>
