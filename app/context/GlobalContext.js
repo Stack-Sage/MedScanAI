@@ -7,9 +7,14 @@ export function GlobalProvider({ children }) {
 	// shared state for Gemini response and last upload result
 	const [geminiResponse, setGeminiResponse] = useState(null)
 	const [lastResult, setLastResult] = useState(null)
+	const [geminiLoading, setGeminiLoading] = useState(false)
 
 	return (
-		<GlobalContext.Provider value={{ geminiResponse, setGeminiResponse, lastResult, setLastResult }}>
+		<GlobalContext.Provider value={{
+			geminiResponse, setGeminiResponse,
+			lastResult, setLastResult,
+			geminiLoading, setGeminiLoading
+		}}>
 			{children}
 		</GlobalContext.Provider>
 	)

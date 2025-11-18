@@ -5,6 +5,8 @@ import { useGlobal } from '../context/GlobalContext'
 import axios from 'axios'
 import { motion, AnimatePresence } from 'framer-motion'
 import Tooltip from './Tooltip'
+import { extractGeminiText } from '../api/upload/gemini'
+import Content from './content'
 
 export default function UploadForm(props) {
   const [file, setFile] = useState(null)
@@ -12,7 +14,7 @@ export default function UploadForm(props) {
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState('')
   const [success, setSuccess] = useState(false)
-  const { setLastResult, setGeminiResponse } = useGlobal()
+  const { setLastResult, setGeminiResponse, setGeminiLoading } = useGlobal()
   const router = useRouter()
   const previewRef = useRef(null)
   const MAX_SIZE = 10 * 1024 * 1024
@@ -57,8 +59,8 @@ export default function UploadForm(props) {
     setLoading(true)
     try {
       const fd = new FormData()
-      fd.append('file', file)   // remote backend expects 'file'
-      fd.append('scan', file)   // internal route expects 'scan'
+      fd.append('file', file)
+      fd.append('scan', file)
       const predictRes = await axios.post(
         'https://medscanaibackend-production.up.railway.app/api/predict',
         fd,
@@ -66,38 +68,48 @@ export default function UploadForm(props) {
       )
       const predictData = predictRes.data
       const label = (predictData.label || "Unknown").trim()
-      const noDisease = /^no[\s_]/i.test(label) // e.g. "No_Lung_Cancer", "No Disease"
-      const geminiInput = {
+      const noDisease = /^no[\s_]/i.test(label)
+      const baseResult = {
         diagnosis: label,
         confidence: predictData.confidence || 0,
-        meta: {
-          filename: predictData.filename,
-          note: note || "",
-        },
+        meta: { filename: predictData.filename, note: note || "" },
         summary: `AI detected: ${label} (confidence: ${predictData.confidence}%)`,
-        noDisease
+        noDisease,
+        file,
+        runId: Date.now()
       }
 
       setGeminiResponse(null)
 
-      let geminiRes = null
-      if (!noDisease) {
-        const { getContent } = require('./content').default()
-        geminiRes = await getContent(geminiInput)
+      if (noDisease) {
+        setLastResult(baseResult)
+        router.push('/results')
+      } else {
+        setGeminiLoading(true)
+        try {
+          const { getContent } = Content()
+          const geminiRes = await getContent(baseResult)
+          const geminiText = extractGeminiText(geminiRes) || 'No Gemini response'
+          setGeminiResponse(geminiText)
+          setLastResult({ ...baseResult, gemini: geminiRes })
+        } catch {
+          setGeminiResponse('Gemini request failed.')
+          setLastResult({ ...baseResult, gemini: { error: 'Gemini request failed.' } })
+        } finally {
+          setGeminiLoading(false)
+          router.push('/results')
+        }
       }
 
-      const runId = Date.now()
-      setLastResult({ ...geminiInput, gemini: geminiRes, file, runId })
       setSuccess(true)
       setTimeout(() => setSuccess(false), 1800)
-      router.push('/results')
     } catch (e) {
       console.error(e)
       alert('Upload failed')
     } finally {
       setLoading(false)
     }
-  }, [file, note, setLastResult, router, loading, setGeminiResponse])
+  }, [file, note, setLastResult, router, loading, setGeminiResponse, setGeminiLoading])
 
   // Use theme for light/dark styling
   const { theme } = require('../context/ThemeContext').useTheme();

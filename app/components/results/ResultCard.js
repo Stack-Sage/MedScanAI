@@ -1,9 +1,10 @@
 'use client'
 import { motion, AnimatePresence } from "framer-motion";
-import { useGlobal } from "../../context/GlobalContext";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useTheme } from "../../context/ThemeContext";
 import Tooltip from "../Tooltip"
+import Loader from "../../components/ui/Loader"
+import { useGlobal } from "../../context/GlobalContext"
 
 // --- New subcomponents ---
 
@@ -195,6 +196,16 @@ function buildCardsFromGemini(raw) {
   }));
 }
 
+function buildFallbackGuidance(result) {
+  const dx = result?.diagnosis || 'Unknown';
+  return [
+    { title: 'Symptoms', points: [`Common symptoms related to ${dx} may vary.`, 'Monitor any changes.', 'Track duration & severity.', 'Seek evaluation if symptoms escalate.'] },
+    { title: 'Causes', points: ['Multiple factors may contribute.', 'Genetic & environmental influences.', 'Lifestyle can modulate risk.', 'Further clinical assessment needed.'] },
+    { title: 'Diagnosis', points: ['Imaging + clinical history.', 'Additional lab tests may help.', 'Follow-up imaging if unclear.', 'Professional consultation advised.'] },
+    { title: 'Treatment', points: ['Depends on severity & type.', 'Supportive care may be sufficient.', 'Specialist referral if persistent.', 'General info; not medical advice.'] },
+  ];
+}
+
 // GuidanceCard unchanged except we ensure cleanLine applied before display
 function GuidanceCard({ title, points, theme }) {
   return (
@@ -309,7 +320,8 @@ export default function ResultCard({ result: propResult }) {
   useEffect(() => {
     if (result?.noDisease) { setText(null); setCards([]); return; }
     let t = null;
-    if (result?.gemini?.candidates?.[0]?.content?.parts?.[0]?.text) t = result.gemini.candidates[0].content.parts[0].text;
+    const parts = result?.gemini?.candidates?.[0]?.content?.parts;
+    if (Array.isArray(parts) && parts[0]?.text) t = parts[0].text;
     else if (geminiResponse) t = geminiResponse;
     else if (result?.summary) t = result.summary;
     setText(t);
@@ -319,6 +331,25 @@ export default function ResultCard({ result: propResult }) {
     if (!text) { setCards([]); return; }
     setCards(buildCardsFromGemini(text));
   }, [text]);
+
+  useEffect(() => {
+    if (!result) { setCards([]); return; }
+    if (result.noDisease) { setCards([]); return; }
+    if (result?.gemini?.error) {
+      setCards([{ title: 'Gemini Error', points: [result.gemini.error] }]);
+      return;
+    }
+    if (geminiResponse && /^Gemini request failed/i.test(geminiResponse)) {
+      setCards([{ title: 'Gemini Error', points: [geminiResponse] }]);
+      return;
+    }
+    if (!text || text === 'No Gemini response') {
+      setCards(buildFallbackGuidance(result));
+      return;
+    }
+    const parsed = buildCardsFromGemini(text);
+    setCards(parsed && parsed.length ? parsed : buildFallbackGuidance(result));
+  }, [text, result, geminiResponse]);
 
   if (!result) return null;
   const diagnosis = result.diagnosis || "Unknown";

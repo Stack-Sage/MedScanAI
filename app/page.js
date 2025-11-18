@@ -9,6 +9,7 @@ import ResultCard from "./components/results/ResultCard"
 import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { useRouter } from "next/navigation"
 import axios from "axios";
+import { extractGeminiText } from "./api/upload/gemini"
 
 import { useGlobal} from "./context/GlobalContext"
 import Content from "./components/content"
@@ -34,8 +35,8 @@ const recent = [
 export default function Home() {
 	const [loading,setLoading]=useState(false);
 	const router = useRouter();
-	const {geminiResponse,setGeminiResponse, setLastResult } = useGlobal();
-	const {getContent} = Content();
+	const { geminiResponse, setGeminiResponse, setLastResult, setGeminiLoading } = useGlobal();
+	const { getContent } = Content();
 	const { theme } = useTheme();
 
 	// Background canvas (Three.js) container
@@ -122,11 +123,12 @@ export default function Home() {
 	useEffect(() => {
 		;(async () => {
 			try {
-				const { default: gsap } = await import('gsap')
-				gsap.from('.reveal', { y: 24, opacity: 0, stagger: 0.08, duration: 0.6, ease: 'power2.out' })
-			} catch (e) {
-				// gsap optional
-			}
+				const { default: gsap } = await import('gsap');
+				const targets = document.querySelectorAll('.reveal');
+				if (targets.length) {
+					gsap.from('.reveal', { y: 24, opacity: 0, stagger: 0.08, duration: 0.6, ease: 'power2.out' });
+				}
+			} catch {}
 		})()
 	}, [])
 
@@ -165,23 +167,40 @@ export default function Home() {
 		if (!file || loading) return
 		setLoading(true)
 		try {
+			setGeminiResponse(null)
 			const fd = new FormData()
 			fd.append('scan', file)
 			fd.append('note', note || '')
 			const res = await axios.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
 			const diagnosis = (res.data?.diagnosis || 'Unknown').trim()
 			const noDisease = /^no[\s_]/i.test(diagnosis)
-			setLastResult({ ...res.data, noDisease, file, runId: Date.now() })
-			setSuccess(true)
-			setTimeout(() => setSuccess(false), 1800)
-			router.push('/results')
+			const baseResult = { ...res.data, noDisease, file, runId: Date.now() }
+
+			if (noDisease) {
+				setLastResult(baseResult)
+				router.push('/results')
+			} else {
+				setGeminiLoading(true)
+				try {
+					const geminiRes = await getContent(baseResult)
+						const geminiText = extractGeminiText(geminiRes) || 'No Gemini response'
+						setGeminiResponse(geminiText)
+						setLastResult({ ...baseResult, gemini: geminiRes })
+				} catch {
+					setGeminiResponse('Gemini request failed.')
+					setLastResult({ ...baseResult, gemini: { error: 'Gemini request failed.' } })
+				} finally {
+					setGeminiLoading(false)
+					router.push('/results')
+				}
+			}
 		} catch (e) {
 			console.error(e)
 			alert('Upload failed')
 		} finally {
 			setLoading(false)
 		}
-	}, [file, note, setLastResult, router, loading])
+	}, [file, note, loading, setGeminiResponse, setLastResult, router, getContent, setGeminiLoading])
 
 	return (
 		<div
@@ -245,7 +264,7 @@ export default function Home() {
 						transition={{ type: "spring", stiffness: 120, damping: 18 }}
 					>
 						<motion.h1
-							className="text-4xl md:text-5xl font-extrabold text-cyan-300 mb-4 tracking-tight drop-shadow text-center lg:text-left"
+							className="reveal text-4xl md:text-5xl font-extrabold text-cyan-300 mb-4 tracking-tight drop-shadow text-center lg:text-left"
 							initial={{ opacity: 0, y: -40, scale: 0.9, letterSpacing: "-0.1em" }}
 							animate={{ opacity: 1, y: 0, scale: 1, letterSpacing: "0.05em" }}
 							transition={{ delay: 0.1, duration: 0.8, type: "spring", bounce: 0.4 }}
@@ -265,7 +284,7 @@ export default function Home() {
 							))}
 						</motion.h1>
 						<motion.p
-							className="max-w-2xl text-lg md:text-xl text-zinc-300 mb-4 text-center lg:text-left"
+							className="reveal max-w-2xl text-lg md:text-xl text-zinc-300 mb-4 text-center lg:text-left"
 							initial={{ opacity: 0, y: 30, scale: 0.95 }}
 							animate={{ opacity: 1, y: 0, scale: 1 }}
 							transition={{ delay: 0.5, duration: 0.7, type: "spring" }}
@@ -285,11 +304,7 @@ export default function Home() {
 							))}
 						</motion.p>
 						<motion.div
-							className={`border rounded-xl shadow-2xl p-6 max-w-lg transition-all duration-300 hover:shadow-cyan-900/20 hover:border-cyan-400 ${
-								theme === 'dark'
-									? 'bg-gradient-to-br from-[#18181b]/90 to-[#0e172a]/90 border-cyan-800 text-cyan-100 backdrop-blur-md'
-									: 'bg-gradient-to-br from-white via-sky-100 to-blue-100 border-sky-200 text-sky-900 hover:shadow-sky-200/20'
-							}`}
+							className="reveal border rounded-xl shadow-2xl p-6 max-w-lg transition-all duration-300 hover:shadow-cyan-900/20 hover:border-cyan-400"
 							initial={{ opacity: 0, y: 60, scale: 0.97, rotate: 2 }}
 							animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
 							transition={{ delay: 0.7, duration: 0.7, type: "spring" }}

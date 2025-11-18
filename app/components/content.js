@@ -12,11 +12,10 @@ const Content = () => {
           disease,
           description,
           questions: [
-            'What are the common symptoms of this disease? ',
+            'What are the common symptoms of this disease?',
             'What are the primary causes of this disease?',
             'How is this disease typically diagnosed?',
-            'What treatment options are available for this disease?',
-      
+            'What treatment options are available for this disease?'
           ]
         }
       ]

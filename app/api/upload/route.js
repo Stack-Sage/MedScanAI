@@ -1,58 +1,23 @@
-import { NextResponse } from 'next/server'
-import axios from 'axios'
-
-// In-memory store (ephemeral in serverless)
-const scansStore = []
+// app/api/gemini/route.js
+import { NextResponse } from 'next/server';
 
 export async function POST(req) {
+  const body = await req.json();
+
+  const API_KEY = "AIzaSyADau_pOUDW2Z_2boidsFy9IjE2F-smnCo"; // hard-coded for testing
+
   try {
-    const form = await req.formData()
-    const scan = form.get('scan')
-    const note = form.get('note')?.toString() || ''
-    if (!scan || !scan.arrayBuffer) {
-      return NextResponse.json({ error: 'no file' }, { status: 400 })
-    }
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${API_KEY}`;
+    const response = await fetch(endpoint, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
-    const buffer = Buffer.from(await scan.arrayBuffer())
-
-    const FormData = (await import('form-data')).default
-    const formToPy = new FormData()
-    formToPy.append('scan', buffer, { filename: scan.name || 'upload.bin' })
-    formToPy.append('note', note)
-
-    const pythonApi = process.env.PYTHON_API || 'http://localhost:8000/analyze'
-    const pyResp = await axios.post(pythonApi, formToPy, { headers: formToPy.getHeaders(), timeout: 120000 })
-    const analysis = pyResp.data || {}
-
-    const summaryApi = process.env.SUMMARY_API || 'http://localhost:9000/summary'
-    let summary = ''
-    try {
-      const s = await axios.post(summaryApi, { diagnosis: analysis.diagnosis, meta: analysis.meta }, { timeout: 30000 })
-      summary = s.data.summary || ''
-    } catch {
-      summary = 'Summary service unavailable'
-    }
-
-    const doc = {
-      uploadedAt: new Date().toISOString(),
-      note,
-      analysis,
-      summary
-    }
-    scansStore.push(doc) // ephemeral storage
-
-    return NextResponse.json(
-      {
-        diagnosis: analysis.diagnosis,
-        confidence: analysis.confidence,
-        meta: analysis.meta,
-        summary,
-        uploadedAt: doc.uploadedAt
-      },
-      { status: 200 }
-    )
+    const json = await response.json();
+    return NextResponse.json(json);
   } catch (err) {
-    console.error(err)
-    return NextResponse.json({ error: 'server error' }, { status: 500 })
+    console.error(err);
+    return NextResponse.json({ error: 'Gemini request failed' }, { status: 500 });
   }
 }

@@ -6,46 +6,41 @@ import { useTheme } from "../context/ThemeContext"
 import { useGlobal } from "../context/GlobalContext"
 import Content from "../components/content"
 import Loader from "../components/ui/Loader"
+import { extractGeminiText } from "../api/upload/gemini"
 
 export default function ResultsPage() {
   const { theme } = useTheme();
-  const { lastResult, geminiResponse, setGeminiResponse } = useGlobal();
+  const {
+    lastResult,
+    geminiResponse,
+    geminiLoading,
+    setGeminiResponse,
+    setGeminiLoading,
+    setLastResult
+  } = useGlobal();
+  const ready = lastResult && (lastResult.noDisease || lastResult.gemini || geminiResponse);
   const [loading, setLoading] = React.useState(false);
-  const getContent = Content().getContent;
+  const getContent = Content().getContent; // added
 
   React.useEffect(() => {
-    if (!lastResult) return;
-
-    // Reset old response so UI can't show stale content
-    setGeminiResponse(null);
-
-    if (lastResult.noDisease) {
-      // Skip Gemini, just stop loading quickly
-      setLoading(false);
-      return;
-    }
-
-    const extractText = (res) =>
-      res?.candidates?.[0]?.content?.parts?.[0]?.text || "";
-
-    (async () => {
-      setLoading(true);
+    if (!lastResult || lastResult.noDisease) return
+    if (lastResult.gemini || geminiResponse) return // already have
+    let active = true
+    ;(async () => {
+      setGeminiLoading(true)
       try {
-        // If UploadForm already computed Gemini, use it
-        if (lastResult.gemini) {
-          setGeminiResponse(extractText(lastResult.gemini) || "No Gemini response");
-          return;
-        }
-        // Otherwise compute now
-        const geminiRes = await getContent(lastResult);
-        setGeminiResponse(extractText(geminiRes) || "No Gemini response");
-      } catch (e) {
-        setGeminiResponse("Gemini request failed.");
+        const geminiRes = await getContent(lastResult)
+        if (!active) return
+        setGeminiResponse(extractGeminiText(geminiRes) || 'No Gemini response')
+        setLastResult(r => r ? { ...r, gemini: geminiRes } : r)
+      } catch {
+        if (active) setGeminiResponse('Gemini request failed.')
       } finally {
-        setLoading(false);
+        if (active) setGeminiLoading(false)
       }
-    })();
-  }, [lastResult, setGeminiResponse]);
+    })()
+    return () => { active = false }
+  }, [lastResult, geminiResponse, getContent, setGeminiResponse, setGeminiLoading, setLastResult])
 
   return (
     <div
@@ -61,7 +56,7 @@ export default function ResultsPage() {
           Your Results
         </motion.h1>
         <div className="w-full max-w-5xl flex flex-col gap-6">
-          {loading ? <Loader /> : <ResultCard />}
+          {!ready || geminiLoading ? <Loader /> : <ResultCard />}
         </div>
         <div className={`mt-8 text-center text-sm ${theme === 'dark' ? 'text-zinc-400' : 'text-zinc-600'}`}>
           <b>Tip:</b> Click Upload your scan on the home page to add a new result.
