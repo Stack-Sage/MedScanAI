@@ -12,7 +12,7 @@ export default function UploadForm(props) {
   const [loading, setLoading] = useState(false)
   const [note, setNote] = useState('')
   const [success, setSuccess] = useState(false)
-  const { setLastResult } = useGlobal()
+  const { setLastResult, setGeminiResponse } = useGlobal()
   const router = useRouter()
   const previewRef = useRef(null)
   const MAX_SIZE = 10 * 1024 * 1024
@@ -56,33 +56,38 @@ export default function UploadForm(props) {
     if (!file || loading) return
     setLoading(true)
     try {
-      // 1. Upload image to MedScanAI backend
       const fd = new FormData()
-      fd.append('file', file)
+      fd.append('file', file)   // remote backend expects 'file'
+      fd.append('scan', file)   // internal route expects 'scan'
       const predictRes = await axios.post(
         'https://medscanaibackend-production.up.railway.app/api/predict',
         fd,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )
       const predictData = predictRes.data
-
-      // 2. Prepare Gemini prompt using backend response and note
+      const label = (predictData.label || "Unknown").trim()
+      const noDisease = /^no[\s_]/i.test(label) // e.g. "No_Lung_Cancer", "No Disease"
       const geminiInput = {
-        diagnosis: predictData.label || "Unknown",
+        diagnosis: label,
         confidence: predictData.confidence || 0,
         meta: {
           filename: predictData.filename,
           note: note || "",
         },
-        summary: `AI detected: ${predictData.label} (confidence: ${predictData.confidence}%)`
+        summary: `AI detected: ${label} (confidence: ${predictData.confidence}%)`,
+        noDisease
       }
 
-      // 3. Call Gemini API (via /components/content.js)
-      const { getContent } = require('./content').default()
-      const geminiRes = await getContent(geminiInput)
+      setGeminiResponse(null)
 
-      // 4. Save result and store the uploaded file for preview in results
-      setLastResult({ ...geminiInput, gemini: geminiRes, file }) // <-- store file in result
+      let geminiRes = null
+      if (!noDisease) {
+        const { getContent } = require('./content').default()
+        geminiRes = await getContent(geminiInput)
+      }
+
+      const runId = Date.now()
+      setLastResult({ ...geminiInput, gemini: geminiRes, file, runId })
       setSuccess(true)
       setTimeout(() => setSuccess(false), 1800)
       router.push('/results')
@@ -92,7 +97,7 @@ export default function UploadForm(props) {
     } finally {
       setLoading(false)
     }
-  }, [file, note, setLastResult, router, loading])
+  }, [file, note, setLastResult, router, loading, setGeminiResponse])
 
   // Use theme for light/dark styling
   const { theme } = require('../context/ThemeContext').useTheme();

@@ -14,22 +14,38 @@ export default function ResultsPage() {
   const getContent = Content().getContent;
 
   React.useEffect(() => {
-    // If we have a lastResult and no Gemini response, call Gemini
-    if (lastResult && !geminiResponse) {
-      setLoading(true);
-      (async () => {
-        try {
-          // You may want to pass lastResult fields to Gemini prompt
-          const geminiRes = await getContent(lastResult);
-          setGeminiResponse(geminiRes?.candidates?.[0]?.content?.parts?.[0]?.text || "No Gemini response");
-        } catch (e) {
-          setGeminiResponse("Gemini request failed.");
-        } finally {
-          setLoading(false);
-        }
-      })();
+    if (!lastResult) return;
+
+    // Reset old response so UI can't show stale content
+    setGeminiResponse(null);
+
+    if (lastResult.noDisease) {
+      // Skip Gemini, just stop loading quickly
+      setLoading(false);
+      return;
     }
-  }, [lastResult, geminiResponse, setGeminiResponse, getContent]);
+
+    const extractText = (res) =>
+      res?.candidates?.[0]?.content?.parts?.[0]?.text || "";
+
+    (async () => {
+      setLoading(true);
+      try {
+        // If UploadForm already computed Gemini, use it
+        if (lastResult.gemini) {
+          setGeminiResponse(extractText(lastResult.gemini) || "No Gemini response");
+          return;
+        }
+        // Otherwise compute now
+        const geminiRes = await getContent(lastResult);
+        setGeminiResponse(extractText(geminiRes) || "No Gemini response");
+      } catch (e) {
+        setGeminiResponse("Gemini request failed.");
+      } finally {
+        setLoading(false);
+      }
+    })();
+  }, [lastResult, setGeminiResponse]);
 
   return (
     <div

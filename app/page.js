@@ -167,9 +167,11 @@ export default function Home() {
 		try {
 			const fd = new FormData()
 			fd.append('scan', file)
-			fd.append('note', note)
+			fd.append('note', note || '')
 			const res = await axios.post('/api/upload', fd, { headers: { 'Content-Type': 'multipart/form-data' } })
-			setLastResult(res.data)
+			const diagnosis = (res.data?.diagnosis || 'Unknown').trim()
+			const noDisease = /^no[\s_]/i.test(diagnosis)
+			setLastResult({ ...res.data, noDisease, file, runId: Date.now() })
 			setSuccess(true)
 			setTimeout(() => setSuccess(false), 1800)
 			router.push('/results')

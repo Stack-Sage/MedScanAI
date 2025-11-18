@@ -12,8 +12,8 @@ const Content = () => {
           disease,
           description,
           questions: [
-            'What are the common symptoms of this disease? 4 small word answers',
-            'What are the primary causes of this disease? 4 small word answers',
+            'What are the common symptoms of this disease? ',
+            'What are the primary causes of this disease?',
             'How is this disease typically diagnosed?',
             'What treatment options are available for this disease?',
       
@@ -37,7 +37,7 @@ Provide concise, structured answers with headings to:
 ${data.questions.map((q, i) => `${i + 1}. ${q}`).join('\n')}
 
 Constraints:
-- Bullet points, short sentences, no fluff.
+- 4 Bullet points, short sentences, no fluff.
 - Add a brief safety note: this is general information and not medical advice.
 - Do NOT provide specific life expectancy; prefer factors influencing outcomes.
     `;
@@ -47,6 +47,7 @@ Constraints:
 
   // Main function to call API
   async function getContent(backendResult) {
+    if (backendResult?.noDisease) return null; // skip Gemini on no disease
     // Use backendResult fields for the prompt
     const content = diseaseFunction(
       backendResult?.diagnosis || "Unknown",

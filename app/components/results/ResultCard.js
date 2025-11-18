@@ -305,13 +305,15 @@ export default function ResultCard({ result: propResult }) {
     }
   }, [result]);
 
+  // Prefer the Gemini text tied to this result; fall back to global and summary
   useEffect(() => {
+    if (result?.noDisease) { setText(null); setCards([]); return; }
     let t = null;
-    if (geminiResponse) t = geminiResponse;
-    else if (result?.gemini?.candidates?.[0]?.content?.parts?.[0]?.text) t = result.gemini.candidates[0].content.parts[0].text;
+    if (result?.gemini?.candidates?.[0]?.content?.parts?.[0]?.text) t = result.gemini.candidates[0].content.parts[0].text;
+    else if (geminiResponse) t = geminiResponse;
     else if (result?.summary) t = result.summary;
     setText(t);
-  }, [geminiResponse, result]);
+  }, [result, geminiResponse]);
 
   useEffect(() => {
     if (!text) { setCards([]); return; }
@@ -319,9 +321,9 @@ export default function ResultCard({ result: propResult }) {
   }, [text]);
 
   if (!result) return null;
-
   const diagnosis = result.diagnosis || "Unknown";
   const confidence = result.confidence !== undefined ? `${result.confidence}%` : "N/A";
+  const isNoDisease = !!result.noDisease;
 
   return (
     <motion.div
@@ -342,10 +344,24 @@ export default function ResultCard({ result: propResult }) {
         <ScanImage file={file} />
         <div className="flex-1 flex flex-col gap-4">
           <DiagnosisInfo diagnosis={diagnosis} confidence={confidence} />
+          {isNoDisease && (
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6, type: "spring" }}
+              className={`rounded-xl p-6 border text-center text-lg font-semibold ${
+                theme === 'dark'
+                  ? 'bg-gradient-to-br from-[#0f172a] to-[#0a2e33] border-cyan-800 text-cyan-100'
+                  : 'bg-gradient-to-br from-white to-sky-100 border-sky-200 text-sky-700'
+              }`}
+            >
+              🎉 Great news! You don't have the detected disease.
+            </motion.div>
+          )}
         </div>
       </motion.div>
       {/* Guidance cards, separated for each question */}
-      <GuidanceCards cards={cards} theme={theme} />
+      {!isNoDisease && <GuidanceCards cards={cards} theme={theme} />}
       <div className="mt-6 flex justify-center">
         <Tooltip text="Results are for demonstration. For real medical advice, consult a professional.">
           <span className="text-xs text-cyan-400 underline cursor-pointer">What does this mean?</span>
