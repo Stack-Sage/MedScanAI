@@ -212,11 +212,11 @@ const StyledWrapper = styled.div`
 
   @keyframes hamsterEye {
     from, 90%, to {
-      transform: scaleY(1);
+      opacity: 1;
     }
 
     95% {
-      transform: scaleY(0);
+      opacity: 0;
     }
   }
 

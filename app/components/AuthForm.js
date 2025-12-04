@@ -63,10 +63,9 @@ export default function AuthForm({ mode }) {
       </div>
       <button
         type="submit"
-        className={`rounded-lg bg-blue-600 text-white font-semibold py-3 mt-2 shadow-md hover:bg-blue-700 active:scale-95 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-300`}
+        className={`rounded-lg bg-blue-600 text-white font-semibold py-3 mt-2 shadow-md hover:bg-blue-700 transition-all duration-150 focus:outline-none focus:ring-2 focus:ring-blue-300`}
         onMouseDown={() => setBtnActive(true)}
         onMouseUp={() => setBtnActive(false)}
-        style={{ transform: btnActive ? "scale(0.97)" : "scale(1)" }}
       >
         {isRegister ? "Register" : "Login"}
       </button>

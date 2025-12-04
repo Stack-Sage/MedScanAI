@@ -85,17 +85,15 @@ export default function ResultCard({ result }) {
       {cards.map((card, idx) => (
         <motion.div
           key={card.label}
-          initial={{ opacity: 0, y: 40, scale: 0.95 }}
-          whileInView={{ opacity: 1, y: 0, scale: 1 }}
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
           whileHover={{
-            scale: 1.08,
             boxShadow: "0 12px 40px 0 #22d3ee66",
             borderColor: "#22d3ee",
             background: "linear-gradient(135deg, #18181b 60%, #0e7490 100%)",
             color: "#e0f2fe"
           }}
           whileTap={{
-            scale: 0.97,
             background: "linear-gradient(135deg, #0e7490 60%, #18181b 100%)"
           }}
           viewport={{ once: true, amount: 0.2 }}
@@ -103,7 +101,7 @@ export default function ResultCard({ result }) {
           className={`relative group bg-gradient-to-br ${card.color} card p-6 rounded-2xl shadow-xl border border-zinc-800 flex flex-col gap-2 cursor-pointer overflow-hidden transition-all duration-300`}
         >
           <div className="flex items-center gap-3 mb-2">
-            <span className="inline-flex items-center justify-center rounded-full bg-zinc-900 shadow w-10 h-10 border border-zinc-800 group-hover:scale-110 transition-transform duration-300">
+            <span className="inline-flex items-center justify-center rounded-full bg-zinc-900 shadow w-10 h-10 border border-zinc-800 transition-transform duration-300">
               {card.icon}
             </span>
             <span className="text-lg font-bold text-cyan-300">{card.label}</span>

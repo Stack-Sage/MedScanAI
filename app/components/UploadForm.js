@@ -62,7 +62,7 @@ export default function UploadForm(props) {
       fd.append('file', file)
       fd.append('scan', file)
       const predictRes = await axios.post(
-        'https://medscanaibackend-production.up.railway.app/api/predict',
+        'https://medscanbackend.onrender.com/predict',
         fd,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )
@@ -117,8 +117,9 @@ export default function UploadForm(props) {
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
       <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
+        // remove scale from entry
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
         className={`relative rounded-2xl shadow-2xl p-6 flex flex-col gap-4 border transition-all duration-700 ease-out overflow-hidden
           ${theme === 'dark'
@@ -142,44 +143,28 @@ export default function UploadForm(props) {
               }
         }
         whileHover={{
-          scale: 1.04,
+          // no transforms on hover
           boxShadow: theme === 'dark'
             ? "0 12px 40px 0 #22d3eecc, 0 1.5px 8px 0 #0ea5e9cc"
             : "0 8px 32px 0 #22d3ee44"
         }}
-        whileTap={{ scale: 0.98 }}
+        whileTap={{}} // no transforms on tap
       >
-        {/* Animated border glow */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-          className={`pointer-events-none absolute -inset-1 rounded-2xl z-0 ${
-            theme === 'dark'
-              ? ''
-              : 'bg-gradient-to-br from-blue-100 via-sky-100 to-white'
-          }`}
-          style={{
-            background: theme === 'dark'
-              ? "radial-gradient(circle at 60% 40%, #0ea5e9 0%, #101624 80%, #09090b 100%)"
-              : "radial-gradient(circle at 60% 40%, #bae6fd 0%, #f0f9ff 60%, transparent 100%)",
-            filter: "blur(24px)",
-            opacity: theme === 'light' ? 0.7 : 0.85
-          }}
-        />
         {/* Success animation */}
         <AnimatePresence>
           {success && (
             <motion.div
-              initial={{ opacity: 0, scale: 0.7 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.7 }}
+              // remove scale from success overlay
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
               transition={{ duration: 0.5 }}
               className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 rounded-2xl"
             >
               <motion.div
-                initial={{ scale: 0.7 }}
-                animate={{ scale: 1.1 }}
+                // remove scale from inner success icon container
+                initial={{}}
+                animate={{}}
                 transition={{ type: "spring", stiffness: 300, damping: 12 }}
                 className="flex flex-col items-center"
               >
@@ -211,8 +196,9 @@ export default function UploadForm(props) {
             Supported: <span className="font-medium">PNG, JPG, DICOM</span> (converted). Max size 10MB.
           </p>
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
+            // remove scale from whileInView
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
             viewport={{ once: true, amount: 0.7 }}
             transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
             className={`border rounded-lg p-3 mb-2 text-sm ${
@@ -257,8 +243,9 @@ export default function UploadForm(props) {
             className={`rounded-lg border max-w-[180px] max-h-[180px] mx-auto my-2 shadow-lg object-contain ${
               theme === 'dark' ? 'border-cyan-800 bg-[#18181b]' : 'border-zinc-800'
             }`}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
+            // remove scale from image entry
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
             style={{ opacity: visible ? 1 : 0 }}
           />
@@ -290,9 +277,9 @@ export default function UploadForm(props) {
         <div className="flex flex-col gap-2 mt-2">
           <Tooltip text="Submit your scan for instant AI analysis.">
             <motion.button
-              whileTap={{ scale: 0.95, backgroundColor: "#0e7490" }}
+              // no transforms on hover/tap
+              whileTap={{}} 
               whileHover={{
-                scale: 1.09,
                 backgroundColor: "#0891b2",
                 boxShadow: theme === 'dark'
                   ? "0 0 0 6px #22d3ee55"

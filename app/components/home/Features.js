@@ -44,15 +44,11 @@ export default function Features() {
         {features.map((f, i) => (
           <motion.div
             key={f.title}
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5, delay: i * 0.12, ease: "easeOut" }}
             whileHover={{
-              rotateX: -2,
-              rotateY: 3,
-              y: -4,
-              scale: 1.11,
               boxShadow: theme === 'dark'
                 ? "0 8px 32px 0 #22d3eecc, 0 1.5px 8px 0 #0ea5e9cc"
                 : "0 8px 32px 0 #38bdf855",
@@ -63,7 +59,6 @@ export default function Features() {
               color: theme === 'dark' ? "#e0f2fe" : undefined
             }}
             whileTap={{
-              scale: 0.97,
               background: theme === 'dark'
                 ? "linear-gradient(135deg, #18181b 60%, #0ea5e9 100%)"
                 : "linear-gradient(135deg, #38bdf8 60%, #e0f2fe 100%)",
