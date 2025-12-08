@@ -33,6 +33,8 @@ const StyledWrapper = styled.div`
     width: 12em;
     height: 12em;
     font-size: 14px;
+    background: rgba(22, 36, 48, 0.12);
+    border-radius: 1em;
   }
 
   .wheel,
@@ -52,8 +54,9 @@ const StyledWrapper = styled.div`
   }
 
   .wheel {
-    background: radial-gradient(100% 100% at center,hsla(180,80%,60%,0) 47.8%,hsl(180,80%,60%) 48%);
+    background: radial-gradient(100% 100% at center,hsla(210,60%,40%,0) 47.8%,hsl(210,60%,40%) 48%);
     z-index: 2;
+    box-shadow: 0 2px 16px 0 #164e6344;
   }
 
   .hamster {
@@ -69,10 +72,10 @@ const StyledWrapper = styled.div`
 
   .hamster__head {
     animation: hamsterHead var(--dur) ease-in-out infinite;
-    background: hsl(0,0%,30%);
+    background: #334155;
     border-radius: 70% 30% 0 100% / 40% 25% 25% 60%;
-    box-shadow: 0 -0.25em 0 hsl(0,0%,60%) inset,
-  		0.75em -1.55em 0 hsl(0,0%,80%) inset;
+    box-shadow: 0 -0.25em 0 #64748b inset,
+  		0.75em -1.55em 0 #e0e7ef inset;
     top: 0;
     left: -2em;
     width: 2.75em;
@@ -82,9 +85,9 @@ const StyledWrapper = styled.div`
 
   .hamster__ear {
     animation: hamsterEar var(--dur) ease-in-out infinite;
-    background: hsl(0,0%,40%);
+    background: #475569;
     border-radius: 50%;
-    box-shadow: -0.25em 0 hsl(180,80%,60%) inset;
+    box-shadow: -0.25em 0 #60a5fa inset;
     top: -0.25em;
     right: -0.25em;
     width: 0.75em;
@@ -94,7 +97,7 @@ const StyledWrapper = styled.div`
 
   .hamster__eye {
     animation: hamsterEye var(--dur) linear infinite;
-    background-color: hsl(0,0%,100%);
+    background-color: #fff;
     border-radius: 50%;
     top: 0.375em;
     left: 1.25em;
@@ -103,7 +106,7 @@ const StyledWrapper = styled.div`
   }
 
   .hamster__nose {
-    background: hsl(180,80%,75%);
+    background: #bae6fd;
     border-radius: 35% 65% 85% 15% / 70% 50% 50% 30%;
     top: 0.75em;
     left: 0;
@@ -113,10 +116,10 @@ const StyledWrapper = styled.div`
 
   .hamster__body {
     animation: hamsterBody var(--dur) ease-in-out infinite;
-    background: hsl(0,0%,40%);
+    background: #475569;
     border-radius: 50% 30% 50% 30% / 15% 60% 40% 40%;
-    box-shadow: 0.1em 0.75em 0 hsl(180,80%,60%) inset,
-  		0.15em -0.5em 0 hsl(0,0%,60%) inset;
+    box-shadow: 0.1em 0.75em 0 #60a5fa inset,
+  		0.15em -0.5em 0 #64748b inset;
     top: 0.25em;
     left: 2em;
     width: 4.5em;
@@ -137,13 +140,13 @@ const StyledWrapper = styled.div`
 
   .hamster__limb--fr {
     animation: hamsterFRLimb var(--dur) linear infinite;
-    background: linear-gradient(hsl(0,0%,60%) 80%,hsl(180,80%,75%) 80%);
+    background: linear-gradient(#64748b 80%,#bae6fd 80%);
     transform: rotate(15deg) translateZ(-1px);
   }
 
   .hamster__limb--fl {
     animation: hamsterFLLimb var(--dur) linear infinite;
-    background: linear-gradient(hsl(0,0%,80%) 80%,hsl(180,80%,85%) 80%);
+    background: linear-gradient(#e0e7ef 80%,#e0f2fe 80%);
     transform: rotate(15deg);
   }
 
@@ -160,21 +163,21 @@ const StyledWrapper = styled.div`
 
   .hamster__limb--br {
     animation: hamsterBRLimb var(--dur) linear infinite;
-    background: linear-gradient(hsl(0,0%,60%) 90%,hsl(180,80%,75%) 90%);
+    background: linear-gradient(#64748b 90%,#bae6fd 90%);
     transform: rotate(-25deg) translateZ(-1px);
   }
 
   .hamster__limb--bl {
     animation: hamsterBLLimb var(--dur) linear infinite;
-    background: linear-gradient(hsl(0,0%,80%) 90%,hsl(180,80%,85%) 90%);
+    background: linear-gradient(#e0e7ef 90%,#e0f2fe 90%);
     transform: rotate(-25deg);
   }
 
   .hamster__tail {
     animation: hamsterTail var(--dur) linear infinite;
-    background: hsl(0,0%,60%);
+    background: #64748b;
     border-radius: 0.25em 50% 50% 0.25em;
-    box-shadow: 0 -0.2em 0 hsl(180,80%,75%) inset;
+    box-shadow: 0 -0.2em 0 #bae6fd inset;
     top: 1.5em;
     right: -0.5em;
     width: 1em;
@@ -185,8 +188,8 @@ const StyledWrapper = styled.div`
 
   .spoke {
     animation: spoke var(--dur) linear infinite;
-    background: radial-gradient(100% 100% at center,hsl(180,80%,60%) 4.8%,hsla(180,80%,60%,0) 5%),
-  		linear-gradient(hsla(180,80%,55%,0) 46.9%,hsl(180,80%,65%) 47% 52.9%,hsla(180,80%,65%,0) 53%) 50% 50% / 99% 99% no-repeat;
+    background: radial-gradient(100% 100% at center,#60a5fa 4.8%,hsla(210,60%,40%,0) 5%),
+  		linear-gradient(hsla(210,60%,35%,0) 46.9%,#60a5fa 47% 52.9%,hsla(210,60%,65%,0) 53%) 50% 50% / 99% 99% no-repeat;
   }
 
   /* Animations */

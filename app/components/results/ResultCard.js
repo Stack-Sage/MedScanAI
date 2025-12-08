@@ -215,26 +215,26 @@ function GuidanceCard({ title, points, theme }) {
       whileHover={{
         scale: 1.08,
         boxShadow: theme === 'dark'
-          ? "0 12px 40px 0 #22d3eecc, 0 1.5px 8px 0 #0ea5e9cc"
-          : "0 12px 40px 0 #38bdf8cc, 0 1.5px 8px 0 #7dd3fcbb",
-        borderColor: "#22d3ee",
+          ? "0 12px 40px 0 #60a5fa88, 0 1.5px 8px 0 #164e6388"
+          : "0 12px 40px 0 #bae6fd88, 0 1.5px 8px 0 #60a5fa88",
+        borderColor: "#60a5fa",
         background: theme === 'dark'
-          ? "linear-gradient(135deg, #18181b 60%, #0e7490 100%)"
-          : "linear-gradient(135deg, #e0f2fe 60%, #38bdf8 100%)",
-        color: theme === 'dark' ? "#e0f2fe" : undefined,
+          ? "linear-gradient(135deg, #23272f 60%, #164e63 100%)"
+          : "linear-gradient(135deg, #f1f5f9 60%, #bae6fd 100%)",
+        color: theme === 'dark' ? "#e0e7ef" : undefined,
         transition: { duration: 0.14, ease: [0.4,0,0.2,1] }
       }}
       whileTap={{
         scale: 0.97,
         background: theme === 'dark'
-          ? "linear-gradient(135deg, #0e7490 60%, #18181b 100%)"
-          : "linear-gradient(135deg, #38bdf8 60%, #e0f2fe 100%)"
+          ? "linear-gradient(135deg, #164e63 60%, #23272f 100%)"
+          : "linear-gradient(135deg, #bae6fd 60%, #f1f5f9 100%)"
       }}
       transition={{ duration: 0.3, type: "spring", stiffness: 80, damping: 18 }}
       className={`result-card-item relative group rounded-2xl shadow-xl border flex flex-col gap-2 cursor-pointer overflow-hidden transition-all duration-150 p-4
         ${theme === 'dark'
-          ? 'bg-gradient-to-br from-[#18181b]/90 to-[#0e172a]/90 border-cyan-800 text-cyan-100 backdrop-blur-md'
-          : 'bg-gradient-to-br from-white via-sky-100 to-blue-100 border-sky-200 text-sky-900 backdrop-blur-[2px]'}
+          ? 'bg-gradient-to-br from-[#23272f]/90 to-[#164e63]/90 border-[#164e63] text-[#e0e7ef] backdrop-blur-md'
+          : 'bg-gradient-to-br from-white via-[#e0e7ef] to-[#bae6fd] border-[#bae6fd] text-[#334155] backdrop-blur-[2px]'}
       `}
     >
       <div className="flex items-center gap-3 mb-2 z-10 relative">
@@ -281,7 +281,7 @@ function GuidanceCards({ cards, theme }) {
   if (!cards.length) return null;
   return (
     <motion.div
-      className={`grid md:grid-cols-2 gap-6 ${theme === 'dark' ? 'text-cyan-100' : 'text-sky-900'}`}
+      className={`grid md:grid-cols-2 gap-6 ${theme === 'dark' ? 'text-[#e0e7ef]' : 'text-[#334155]'}`}
       initial="hidden"
       animate="visible"
       variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
@@ -382,8 +382,8 @@ export default function ResultCard({ result: propResult }) {
               transition={{ duration: 0.6, type: "spring" }}
               className={`rounded-xl p-6 border text-center text-lg font-semibold ${
                 theme === 'dark'
-                  ? 'bg-gradient-to-br from-[#0f172a] to-[#0a2e33] border-cyan-800 text-cyan-100'
-                  : 'bg-gradient-to-br from-white to-sky-100 border-sky-200 text-sky-700'
+                  ? 'bg-gradient-to-br from-[#23272f] to-[#164e63] border-[#164e63] text-[#e0e7ef]'
+                  : 'bg-gradient-to-br from-white to-[#bae6fd] border-[#bae6fd] text-[#334155]'
               }`}
             >
               🎉 Great news! You don't have the detected disease.

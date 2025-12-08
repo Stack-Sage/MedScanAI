@@ -46,8 +46,7 @@ Constraints:
 
   // Main function to call API
   async function getContent(backendResult) {
-    if (backendResult?.noDisease) return null; // skip Gemini on no disease
-    // Use backendResult fields for the prompt
+    if (backendResult?.noDisease) return null; 
     const content = diseaseFunction(
       backendResult?.diagnosis || "Unknown",
       backendResult?.meta?.disease || "Unknown Disease",

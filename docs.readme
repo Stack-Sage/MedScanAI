@@ -1,0 +1,176 @@
+# MedScan AI Documentation
+
+## Overview
+
+MedScan AI is a demo web application for instant, AI-powered medical scan analysis and health guidance. Users can upload medical scan images, receive an AI diagnosis, and get structured health guidance powered by Google's Gemini API. The app is built with React (Next.js), styled-components, and Framer Motion for UI animation.
+
+---
+
+## Project Flow
+
+1. **User uploads a scan** via the home page.
+2. **Backend API** processes the scan and returns a diagnosis and confidence score.
+3. If a disease is detected, the app sends a structured prompt to the Gemini API for health guidance.
+4. **Results page** displays diagnosis, confidence, and AI-generated guidance cards.
+5. **Theme and global state** are managed via React Context.
+
+---
+
+## File & Component Roles
+
+### Top-Level Files
+
+- **layout.js**  
+  Root layout for the app. Wraps all pages with `ThemeProvider` and `GlobalProvider`, and includes the `Navbar`.
+
+- **page.js**  
+  Home page. Contains hero section, features, upload form, and handles scan upload logic.
+
+- **about/page.js**  
+  About page. Describes the app and its features.
+
+- **results/page.js**  
+  Results page. Displays the latest scan result and AI guidance.
+
+---
+
+### Context Providers
+
+- **context/ThemeContext.js**  
+  Provides theme (light/dark) state and toggle function via React Context.
+
+- **context/GlobalContext.js**  
+  Provides global state for Gemini API responses, last scan result, and loading status.
+
+---
+
+### Components
+
+- **components/Navbar.js**  
+  Responsive navigation bar with theme toggle and links to Home/Results.
+
+- **components/UploadForm.js**  
+  Handles scan file upload, preview, note input, and submission to backend.
+
+- **components/results/ResultCard.js**  
+  Main result card. Displays scan image, diagnosis, confidence, and AI guidance cards.
+
+- **components/ResultCard.js**  
+  Legacy/simple result card for displaying diagnosis, confidence, summary, and meta info.
+
+- **components/content.js**  
+  Prepares prompts for Gemini API, formats responses, and provides `getContent` for fetching guidance.
+
+- **components/Tooltip.js**  
+  Simple tooltip component for UI hints.
+
+- **components/ui/Loader.jsx**  
+  Animated loader (hamster wheel) for loading states.
+
+- **components/ui/Card.jsx**  
+  Styled card UI component (demo/unused).
+
+- **components/home/Hero.js**  
+  Hero section for the home page (imported in page.js).
+
+- **components/home/Features.js**  
+  Features section for the home page.
+
+- **components/home/Footer.js**  
+  Footer for the home page.
+
+---
+
+### API Integration
+
+- **api/upload/gemini.js**  
+  Functions for sending requests to Gemini API and extracting text from responses.
+
+- **api/upload/route.js**  
+  Next.js API route for server-side Gemini API requests (not used in client-side flow).
+
+---
+
+## Data Flow
+
+- **Upload**:  
+  User uploads a scan via `UploadForm`.  
+  The file is sent to the backend (`/predict` endpoint).  
+  The backend returns diagnosis, confidence, and meta info.
+
+- **Gemini Guidance**:  
+  If a disease is detected, a prompt is generated in `content.js` and sent to Gemini API via `api/upload/gemini.js`.  
+  The response is parsed and shown as guidance cards in `ResultCard`.
+
+- **State Management**:  
+  Theme and global state (last result, Gemini response, loading) are managed via context providers.
+
+---
+
+## UI/UX
+
+- **Animated background**:  
+  Three.js starfield on home page.
+
+- **Framer Motion**:  
+  Used for smooth UI transitions and animations.
+
+- **Styled Components**:  
+  Used for custom component styling.
+
+- **Responsive Design**:  
+  Navbar and layout adapt to mobile/desktop.
+
+---
+
+## Security Notes
+
+- **API Keys**:  
+  Gemini API keys are hard-coded for demo/testing.  
+  In production, keys should be stored securely and not exposed to the client.
+
+- **Privacy**:  
+  Uploaded files are processed for demo purposes and not stored permanently.
+
+---
+
+## File Reference Summary
+
+| File/Component                | Role/Responsibility                                      |
+|-------------------------------|---------------------------------------------------------|
+| layout.js                     | App root, wraps with providers, includes Navbar         |
+| page.js                       | Home page, upload logic, hero/features                  |
+| about/page.js                 | About page, app info                                    |
+| results/page.js               | Results page, shows diagnosis/guidance                  |
+| context/ThemeContext.js       | Theme state/context                                     |
+| context/GlobalContext.js      | Global state/context                                    |
+| components/Navbar.js          | Navigation bar, theme toggle                            |
+| components/UploadForm.js      | Scan upload form, preview, submit                       |
+| components/results/ResultCard.js | Main result/guidance card                          |
+| components/ResultCard.js      | Simple result card (legacy)                             |
+| components/content.js         | Gemini prompt formatting, API call                      |
+| components/Tooltip.js         | Tooltip UI                                              |
+| components/ui/Loader.jsx      | Loader animation                                        |
+| components/ui/Card.jsx        | Styled card (demo)                                      |
+| components/home/Hero.js       | Hero section                                            |
+| components/home/Features.js   | Features section                                        |
+| components/home/Footer.js     | Footer section                                          |
+| api/upload/gemini.js          | Gemini API client functions                             |
+| api/upload/route.js           | Next.js API route for Gemini (not main flow)            |
+
+---
+
+## How to Use
+
+1. **Upload a scan** on the home page.
+2. **View results** on the results page.
+3. **Toggle theme** using the Navbar.
+4. **Read about the app** on the About page.
+
+---
+
+## Notes
+
+- This is a demonstration project. No real medical advice is provided.
+- For real medical use, consult a professional and ensure data privacy/security.
+

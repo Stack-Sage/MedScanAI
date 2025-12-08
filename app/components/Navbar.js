@@ -13,22 +13,32 @@ export default function Navbar() {
   }, [])
 
   return (
-    <header className={`sticky top-0 z-30 ${theme === 'dark' ? 'bg-black/90' : 'bg-white/90'} backdrop-blur border-b ${theme === 'dark' ? 'border-zinc-800' : 'border-zinc-200'} flex items-center justify-between px-6 py-3 transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+    <header className={`sticky top-0 z-30 ${
+      theme === 'dark'
+        ? 'bg-[#23272f]/90 border-[#164e63]'
+        : 'bg-white/90 border-[#bae6fd]'
+    } backdrop-blur flex items-center justify-between px-6 py-3 transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
       <div className="flex items-center gap-4">
-        <span className={`font-bold text-xl md:text-2xl tracking-tight transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${theme === 'dark' ? 'text-cyan-400 hover:text-cyan-200' : 'text-cyan-700 hover:text-cyan-900'}`}>
+        <span className={`font-bold text-xl md:text-2xl tracking-tight transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${
+          theme === 'dark'
+            ? 'text-[#60a5fa] hover:text-[#bae6fd]'
+            : 'text-[#164e63] hover:text-[#60a5fa]'
+        }`}>
           MedScan AI
         </span>
       </div>
-      <nav className={`hidden md:flex gap-2 text-base ${theme === 'dark' ? 'text-zinc-200' : 'text-zinc-700'}`}>
+      <nav className={`hidden md:flex gap-2 text-base ${
+        theme === 'dark' ? 'text-[#e0e7ef]' : 'text-[#334155]'
+      }`}>
         <Link
           href="/"
-          className={`nav-link font-medium transition-all duration-300 hover:text-cyan-400 hover:scale-105 active:scale-95 ${theme === 'light' ? 'hover:text-cyan-700' : ''}`}
+          className={`nav-link font-medium transition-all duration-300 hover:text-[#60a5fa] hover:scale-105 active:scale-95 ${theme === 'light' ? 'hover:text-[#164e63]' : ''}`}
         >
           Home
         </Link>
         <Link
           href="/results"
-          className={`nav-link font-medium transition-all duration-300 hover:text-cyan-400 hover:scale-105 active:scale-95 ${theme === 'light' ? 'hover:text-cyan-700' : ''}`}
+          className={`nav-link font-medium transition-all duration-300 hover:text-[#60a5fa] hover:scale-105 active:scale-95 ${theme === 'light' ? 'hover:text-[#164e63]' : ''}`}
         >
           Results
         </Link>
@@ -36,7 +46,11 @@ export default function Navbar() {
       <div className="flex items-center gap-2">
         {/* Theme toggle */}
         <button
-          className={`rounded-full p-2 transition ${theme === 'dark' ? 'bg-zinc-800 hover:bg-zinc-700' : 'bg-zinc-200 hover:bg-zinc-300'}`}
+          className={`rounded-full p-2 transition ${
+            theme === 'dark'
+              ? 'bg-[#23272f] hover:bg-[#164e63]'
+              : 'bg-[#e0e7ef] hover:bg-[#bae6fd]'
+          }`}
           onClick={toggle}
           aria-label="Toggle theme"
         >

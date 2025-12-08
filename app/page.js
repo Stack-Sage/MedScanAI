@@ -204,38 +204,27 @@ export default function Home() {
 
 	return (
 		<div
-			className={`min-h-screen flex flex-col relative font-sans transition-colors duration-500 ${
+			className={`min-h-screen flex flex-col relative font-sans ${
 				theme === 'dark'
-					? 'bg-black text-zinc-100'
-					: 'bg-gradient-to-br from-white via-sky-100 to-blue-100 text-sky-900'
+					? 'bg-primary-dark text-primary'
+					: 'bg-gradient-to-br from-[#f1f5f9] via-[#e0e7ef] to-[#bae6fd] text-[#334155]'
 			}`}
-			style={
-				theme === 'light'
-					? {
-						backgroundImage: 'linear-gradient(120deg, #e0f2fe 0%, #f0f9ff 60%, #bae6fd 100%)',
-						backgroundBlendMode: 'normal'
-					}
-					: undefined
-			}
+			style={{
+				background: theme === 'dark'
+					? 'linear-gradient(120deg, #0f111a 0%, #1a1e2c 100%)'
+					: 'linear-gradient(120deg, #f1f5f9 0%, #e0e7ef 60%, #bae6fd 100%)'
+			}}
 			onMouseMove={onMouseMove}
 		>
 			{/* animated background */}
 			<div
 				ref={bgRef}
-				className={`pointer-events-none fixed inset-0 -z-10 transition-colors duration-500 ${
-					theme === 'dark'
-						? 'bg-black'
-						: 'bg-gradient-to-br from-white via-sky-100 to-blue-100'
-				}`}
-				style={
-					theme === 'light'
-						? {
-							backgroundImage: 'linear-gradient(120deg, #e0f2fe 0%, #f0f9ff 60%, #bae6fd 100%)',
-							opacity: 0.97,
-							filter: "blur(0.5px)"
-						}
-						: undefined
-				}
+				className="pointer-events-none fixed inset-0 -z-10"
+				style={{
+					background: theme === 'dark'
+						? 'linear-gradient(120deg, #0f111a 0%, #1a1e2c 100%)'
+						: 'linear-gradient(120deg, #f1f5f9 0%, #e0e7ef 60%, #bae6fd 100%)'
+				}}
 			/>
 
 			{loading && (
@@ -256,19 +245,22 @@ export default function Home() {
 				>
 					{/* Left: MedScan AI info */}
 					<motion.div
-						className="flex-1 flex flex-col items-center lg:items-start justify-center transition-all duration-300"
-						whileHover={{ scale: 1.04, y: -4, rotate: -1 }}
-						whileTap={{ scale: 0.98, rotate: 0.5 }}
-						initial={{ opacity: 0, x: -80, rotate: -5 }}
-						animate={{ opacity: 1, x: 0, rotate: 0 }}
+						className={`flex-1 flex flex-col items-center lg:items-start justify-center transition-all duration-300 ${
+							theme === 'dark'
+								? 'bg-secondary-dark border border-border-primary rounded-2xl p-8 shadow-md shadow-black/40'
+								: 'bg-white border border-[#bae6fd] rounded-2xl p-8 shadow-md shadow-[#bae6fd]/40'
+						}`}
+						initial={{ opacity: 0, x: -80 }}
+						animate={{ opacity: 1, x: 0 }}
 						transition={{ type: "spring", stiffness: 120, damping: 18 }}
 					>
 						<motion.h1
-							className="reveal text-4xl md:text-5xl font-extrabold text-cyan-300 mb-4 tracking-tight drop-shadow text-center lg:text-left"
+							className={`reveal text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow text-center lg:text-left ${
+								theme === 'dark' ? 'text-accent-blue' : 'text-sky-700'
+							}`}
 							initial={{ opacity: 0, y: -40, scale: 0.9, letterSpacing: "-0.1em" }}
 							animate={{ opacity: 1, y: 0, scale: 1, letterSpacing: "0.05em" }}
 							transition={{ delay: 0.1, duration: 0.8, type: "spring", bounce: 0.4 }}
-							whileHover={{ textShadow: "0 0 24px #22d3ee, 0 0 48px #0e7490" }}
 						>
 							{[..."MedScan AI"].map((char, i) => (
 								<motion.span
@@ -277,18 +269,18 @@ export default function Home() {
 									animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
 									transition={{ delay: 0.15 + i * 0.04, type: "spring", stiffness: 200, damping: 12 }}
 									className="inline-block"
-									whileHover={{ color: "#67e8f9", scale: 1.15, rotate: 3 }}
 								>
 									{char === " " ? "\u00A0" : char}
 								</motion.span>
 							))}
 						</motion.h1>
 						<motion.p
-							className="reveal max-w-2xl text-lg md:text-xl text-zinc-300 mb-4 text-center lg:text-left"
+							className={`reveal max-w-2xl text-lg md:text-xl mb-4 text-center lg:text-left ${
+								theme === 'dark' ? 'text-primary/90' : 'text-sky-900/90'
+							}`}
 							initial={{ opacity: 0, y: 30, scale: 0.95 }}
 							animate={{ opacity: 1, y: 0, scale: 1 }}
 							transition={{ delay: 0.5, duration: 0.7, type: "spring" }}
-							whileHover={{ color: "#a5f3fc", scale: 1.04, letterSpacing: "0.04em" }}
 						>
 							{[..."AI-powered scan analysis and instant health guidance."].map((char, i) => (
 								<motion.span
@@ -297,36 +289,28 @@ export default function Home() {
 									animate={{ opacity: 1, y: 0, scale: 1 }}
 									transition={{ delay: 0.6 + i * 0.012, type: "spring", stiffness: 120, damping: 14 }}
 									className="inline-block"
-									whileHover={{ color: "#67e8f9", scale: 1.1 }}
 								>
 									{char === " " ? "\u00A0" : char}
 								</motion.span>
 							))}
 						</motion.p>
 						<motion.div
-							className="reveal border rounded-xl shadow-2xl p-6 max-w-lg transition-all duration-300 hover:shadow-cyan-900/20 hover:border-cyan-400"
-							initial={{ opacity: 0, y: 60, scale: 0.97, rotate: 2 }}
-							animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+							className={`reveal border rounded-xl shadow-2xl p-6 max-w-lg transition-all duration-300 ${
+								theme === 'dark'
+									? 'bg-secondary-dark border-border-primary text-primary'
+									: 'bg-white border-[#bae6fd] text-[#334155]'
+							}`}
+							initial={{ opacity: 0, y: 60, scale: 0.97 }}
+							animate={{ opacity: 1, y: 0, scale: 1 }}
 							transition={{ delay: 0.7, duration: 0.7, type: "spring" }}
-							whileHover={{
-								scale: 1.05,
-								boxShadow: theme === 'dark'
-									? "0 8px 32px 0 #22d3eecc"
-									: "0 8px 32px 0 #bae6fdcc",
-								borderColor: theme === 'dark'
-									? "#22d3ee"
-									: "#38bdf8",
-								rotate: -1
-							}}
 						>
 							<motion.h3
 								className={`text-xl font-semibold mb-2 ${
-									theme === 'dark' ? 'text-cyan-300 drop-shadow-lg' : 'text-sky-700'
+									theme === 'dark' ? 'text-accent-blue drop-shadow-lg' : 'text-sky-700'
 								}`}
 								initial={{ opacity: 0, x: -30, scale: 0.9 }}
 								animate={{ opacity: 1, x: 0, scale: 1 }}
 								transition={{ delay: 0.8, duration: 0.5 }}
-								whileHover={{ color: theme === 'dark' ? "#67e8f9" : "#0ea5e9", scale: 1.08 }}
 							>
 								Why MedScan AI?
 							</motion.h3>
@@ -352,14 +336,9 @@ export default function Home() {
 										transition={{ duration: 0.4, delay: 1 + i * 0.13 }}
 										className={`transition-colors duration-300 ${
 											theme === 'dark'
-												? 'hover:text-cyan-300 text-cyan-100'
-												: 'hover:text-sky-700 text-sky-900'
+												? 'hover:text-accent-teal text-primary'
+												: 'hover:text-sky-700 text-[#334155]'
 										}`}
-										whileHover={{
-											scale: 1.08,
-											color: theme === 'dark' ? "#67e8f9" : "#0ea5e9",
-											x: 8
-										}}
 									>
 										{item}
 									</motion.li>
@@ -367,15 +346,11 @@ export default function Home() {
 							</motion.ul>
 							<motion.div
 								className={`mt-4 text-sm ${
-									theme === 'dark' ? 'text-cyan-300' : 'text-sky-600'
+									theme === 'dark' ? 'text-accent-blue' : 'text-sky-700'
 								}`}
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: 1.6, duration: 0.5 }}
-								whileHover={{
-									color: theme === 'dark' ? "#a5f3fc" : "#0ea5e9",
-									scale: 1.04
-								}}
 							>
 								<b>Note:</b> This is a demo. No real medical advice is provided.
 							</motion.div>
@@ -383,11 +358,13 @@ export default function Home() {
 					</motion.div>
 					{/* Right: Upload Form */}
 					<motion.div
-						className="flex-1 flex items-center justify-center w-full"
-						whileHover={{ scale: 1.07, y: -2, boxShadow: "0 8px 32px 0 #22d3ee44", rotate: 1 }}
-						whileTap={{ scale: 0.98, rotate: -1 }}
-						initial={{ opacity: 0, x: 80, rotate: 5 }}
-						animate={{ opacity: 1, x: 0, rotate: 0 }}
+						className={`flex-1 flex items-center justify-center w-full ${
+							theme === 'dark'
+								? 'bg-secondary-dark border border-border-primary shadow-md shadow-black/40 rounded-2xl p-8'
+								: 'bg-white border border-[#bae6fd] shadow-md shadow-[#bae6fd]/40 rounded-2xl p-8'
+						}`}
+						initial={{ opacity: 0, x: 80 }}
+						animate={{ opacity: 1, x: 0 }}
 						transition={{ type: "spring", stiffness: 120, damping: 18, delay: 0.3 }}
 					>
 						<UploadForm

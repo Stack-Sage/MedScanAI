@@ -62,7 +62,7 @@ export default function UploadForm(props) {
       fd.append('file', file)
       fd.append('scan', file)
       const predictRes = await axios.post(
-        'https://medscanaibackend-production.up.railway.app/api/predict',
+        'https://ibmprojectbackend-production.up.railway.app/api/predict',
         fd,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )
@@ -120,53 +120,16 @@ export default function UploadForm(props) {
         initial={{ opacity: 0, y: 40, scale: 0.97 }}
         animate={{ opacity: 1, y: 0, scale: 1 }}
         transition={{ duration: 0.7, ease: 'easeOut' }}
-        className={`relative rounded-2xl shadow-2xl p-6 flex flex-col gap-4 border transition-all duration-700 ease-out overflow-hidden
-          ${theme === 'dark'
-            ? 'bg-gradient-to-br from-[#101624] via-[#18181b] to-[#0e172a] border-cyan-800 text-cyan-100 backdrop-blur-lg'
-            : 'bg-gradient-to-br from-white via-sky-100 to-blue-100 border-sky-200 text-sky-900 backdrop-blur-[2px]'}
+        className={`relative rounded-2xl shadow-md shadow-black/40 p-6 flex flex-col gap-4 border border-border-primary bg-secondary-dark text-primary transition-all duration-700 ease-out overflow-hidden
           ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
         `}
-        style={
-          theme === 'dark'
-            ? {
-                boxShadow: '0 8px 32px 0 #0ea5e9cc, 0 1.5px 8px 0 #22d3ee77',
-                backgroundImage: 'linear-gradient(120deg, #101624 0%, #18181b 60%, #0e172a 100%)',
-                backgroundBlendMode: 'screen',
-                borderColor: '#0ea5e9',
-                color: '#e0f2fe'
-              }
-            : {
-                boxShadow: '0 8px 32px 0 #bae6fdcc, 0 1.5px 8px 0 #7dd3fcbb',
-                backgroundImage: 'linear-gradient(120deg, #f0f9ff 0%, #bae6fd 100%)',
-                backgroundBlendMode: 'normal'
-              }
-        }
-        whileHover={{
-          scale: 1.04,
-          boxShadow: theme === 'dark'
-            ? "0 12px 40px 0 #22d3eecc, 0 1.5px 8px 0 #0ea5e9cc"
-            : "0 8px 32px 0 #22d3ee44"
+        style={{
+          boxShadow: '0 8px 32px 0 #0008, 0 1.5px 8px 0 #4fc3f733',
+          background: theme === 'dark' ? '#1a1e2c' : '#fff',
+          borderColor: theme === 'dark' ? '#2a2f3e' : '#bae6fd',
+          color: theme === 'dark' ? '#e0e6f2' : '#334155'
         }}
-        whileTap={{ scale: 0.98 }}
       >
-        {/* Animated border glow */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-          className={`pointer-events-none absolute -inset-1 rounded-2xl z-0 ${
-            theme === 'dark'
-              ? ''
-              : 'bg-gradient-to-br from-blue-100 via-sky-100 to-white'
-          }`}
-          style={{
-            background: theme === 'dark'
-              ? "radial-gradient(circle at 60% 40%, #0ea5e9 0%, #101624 80%, #09090b 100%)"
-              : "radial-gradient(circle at 60% 40%, #bae6fd 0%, #f0f9ff 60%, transparent 100%)",
-            filter: "blur(24px)",
-            opacity: theme === 'light' ? 0.7 : 0.85
-          }}
-        />
         {/* Success animation */}
         <AnimatePresence>
           {success && (
@@ -206,8 +169,12 @@ export default function UploadForm(props) {
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
         >
-          <h2 className="text-xl font-bold text-zinc-100 mb-1">Upload your scan</h2>
-          <p className="text-sm text-zinc-400 mb-2">
+          <h2 className={`text-xl font-bold mb-1 ${
+            theme === 'dark' ? 'text-accent-blue' : 'text-sky-700'
+          }`}>Upload your scan</h2>
+          <p className={`text-sm mb-2 ${
+            theme === 'dark' ? 'text-primary/80' : 'text-sky-900/80'
+          }`}>
             Supported: <span className="font-medium">PNG, JPG, DICOM</span> (converted). Max size 10MB.
           </p>
           <motion.div
@@ -215,15 +182,15 @@ export default function UploadForm(props) {
             whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true, amount: 0.7 }}
             transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
-            className={`border rounded-lg p-3 mb-2 text-sm ${
+            className={`border rounded-lg p-3 mb-2 text-sm shadow ${
               theme === 'dark'
-                ? 'bg-gradient-to-br from-[#18181b]/80 to-[#0e172a]/80 border-cyan-800 text-cyan-100 shadow-cyan-900/30'
-                : 'bg-white/80 border-sky-200 text-sky-900 shadow-blue-100/40'
+                ? 'bg-secondary-dark border-border-primary text-primary shadow-black/20'
+                : 'bg-white border-[#bae6fd] text-[#334155] shadow-[#bae6fd]/20'
             }`}
-            style={theme === 'light' ? { backdropFilter: 'blur(2px)' } : { backdropFilter: 'blur(4px)' }}
+            style={{ backdropFilter: 'blur(4px)' }}
           >
             <b>Demo:</b> You can upload any image file for a simulated AI analysis.<br />
-            <span className="text-cyan-400">Your data is never stored permanently.</span>
+            <span className={theme === 'dark' ? 'text-accent-blue' : 'text-sky-700'}>Your data is never stored permanently.</span>
           </motion.div>
         </motion.div>
         {/* Floating label input with tooltip */}
@@ -233,19 +200,15 @@ export default function UploadForm(props) {
               type="file"
               accept="image/*"
               onChange={onFile}
-              className={`peer block w-full mt-1 text-sm file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold transition-all duration-300 bg-transparent
-                ${theme === 'dark'
-                  ? 'text-cyan-100 file:bg-[#101624] file:text-cyan-100 hover:file:bg-cyan-900/60 focus:file:bg-cyan-800/60 border-cyan-800'
-                  : 'text-sky-900 file:bg-blue-100 file:text-sky-900 hover:file:bg-sky-100 focus:file:bg-sky-50'}
-              `}
-              style={theme === 'dark'
-                ? { boxShadow: '0 1px 8px 0 #0ea5e9cc', border: '1.5px solid #0891b2' }
-                : { boxShadow: '0 1px 8px 0 #bae6fdcc' }
-              }
+              className={`peer block w-full mt-1 text-sm rounded-lg p-3 focus:outline-none focus:ring-2 transition duration-300 ${
+                theme === 'dark'
+                  ? 'bg-secondary-dark border border-border-primary text-primary focus:ring-accent-blue focus:border-accent-blue'
+                  : 'bg-white border border-[#bae6fd] text-[#334155] focus:ring-[#60a5fa] focus:border-[#60a5fa]'
+              }`}
             />
           </Tooltip>
           <label className={`absolute left-2 -top-4 text-xs transition-all peer-focus:-top-5 ${
-            theme === 'dark' ? 'text-cyan-400 peer-focus:text-cyan-300' : 'text-sky-700 peer-focus:text-sky-900'
+            theme === 'dark' ? 'text-accent-blue peer-focus:text-accent-teal' : 'text-[#164e63] peer-focus:text-[#60a5fa]'
           }`}>
             Scan file
           </label>
@@ -255,7 +218,7 @@ export default function UploadForm(props) {
             src={preview}
             alt="preview"
             className={`rounded-lg border max-w-[180px] max-h-[180px] mx-auto my-2 shadow-lg object-contain ${
-              theme === 'dark' ? 'border-cyan-800 bg-[#18181b]' : 'border-zinc-800'
+              theme === 'dark' ? 'border-border-primary bg-secondary-dark' : 'border-[#bae6fd] bg-white'
             }`}
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
@@ -270,19 +233,16 @@ export default function UploadForm(props) {
               value={note}
               onChange={e => setNote(e.target.value)}
               placeholder=" "
-              className={`peer w-full mt-1 rounded-lg border p-2 placeholder-transparent resize-vertical min-h-[80px] focus:outline-none focus:ring-2 transition-all duration-300
-                ${theme === 'dark'
-                  ? 'border-cyan-800 bg-[#18181b]/60 text-cyan-100 focus:ring-cyan-400'
-                  : 'border-sky-200 bg-white/80 text-sky-900 focus:ring-sky-300'}
-              `}
-              style={theme === 'dark'
-                ? { boxShadow: '0 1px 8px 0 #0ea5e9cc', backdropFilter: 'blur(4px)' }
-                : { boxShadow: '0 1px 8px 0 #bae6fdcc', backdropFilter: 'blur(2px)' }
-              }
+              className={`peer w-full mt-1 rounded-lg border p-3 focus:outline-none focus:ring-2 transition duration-300 min-h-[80px] ${
+                theme === 'dark'
+                  ? 'border-border-primary bg-secondary-dark text-primary focus:ring-accent-blue focus:border-accent-blue'
+                  : 'border-[#bae6fd] bg-white text-[#334155] focus:ring-[#60a5fa] focus:border-[#60a5fa]'
+              }`}
+              style={{ boxShadow: '0 1px 8px 0 #0008', backdropFilter: 'blur(4px)' }}
             />
           </Tooltip>
-          <label className={`absolute left-2 top-2 text-xs pointer-events-none transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-xs peer-focus:-top-4 peer-focus:text-xs ${
-            theme === 'dark' ? 'text-cyan-400 peer-focus:text-cyan-300' : 'text-sky-700 peer-focus:text-sky-900'
+          <label className={`absolute left-2 top-2 text-xs pointer-events-none transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-xs peer-focus:-top-4 ${
+            theme === 'dark' ? 'text-accent-blue peer-focus:text-accent-teal' : 'text-[#164e63] peer-focus:text-[#60a5fa]'
           }`}>
             Additional info
           </label>
@@ -290,24 +250,21 @@ export default function UploadForm(props) {
         <div className="flex flex-col gap-2 mt-2">
           <Tooltip text="Submit your scan for instant AI analysis.">
             <motion.button
-              whileTap={{ scale: 0.95, backgroundColor: "#0e7490" }}
+              whileTap={{ scale: 0.95, backgroundColor: theme === 'dark' ? "#00bfa5" : "#60a5fa" }}
               whileHover={{
-                scale: 1.09,
-                backgroundColor: "#0891b2",
+                scale: 1.05,
+                backgroundColor: theme === 'dark' ? "#4fc3f7" : "#bae6fd",
                 boxShadow: theme === 'dark'
-                  ? "0 0 0 6px #22d3ee55"
-                  : "0 0 0 4px #22d3ee55"
+                  ? "0 0 0 6px #4fc3f755"
+                  : "0 0 0 4px #bae6fd55"
               }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className={`btn font-semibold py-2 rounded-lg transition-all duration-300 shadow-lg
-                ${theme === 'dark'
-                  ? 'bg-gradient-to-r from-cyan-700 via-cyan-800 to-cyan-900 hover:from-cyan-600 hover:to-cyan-800 text-white shadow-cyan-900/40 border border-cyan-400'
-                  : 'bg-gradient-to-r from-sky-400 via-blue-400 to-cyan-500 hover:from-sky-500 hover:to-blue-400 text-white shadow-blue-200/40 border border-sky-300'}
-              `}
-              style={theme === 'dark'
-                ? { boxShadow: '0 2px 16px 0 #0ea5e9cc' }
-                : { boxShadow: '0 2px 12px 0 #bae6fdcc' }
-              }
+              className={`font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md ${
+                theme === 'dark'
+                  ? 'bg-accent-blue text-primary hover:bg-accent-teal shadow-accent-blue/30'
+                  : 'bg-[#bae6fd] text-[#334155] hover:bg-[#60a5fa] shadow-[#bae6fd]/30'
+              }`}
+              style={{ boxShadow: theme === 'dark' ? '0 2px 16px 0 #4fc3f733' : '0 2px 12px 0 #bae6fd44' }}
               onClick={submit}
               disabled={loading || !file}
             >
@@ -321,14 +278,16 @@ export default function UploadForm(props) {
               ) : 'Submit'}
             </motion.button>
           </Tooltip>
-          <span className={`text-xs ${theme === 'dark' ? 'text-cyan-300' : 'text-sky-700'}`}>
+          <span className={`text-xs ${theme === 'dark' ? 'text-primary/80' : 'text-sky-700/80'}`}>
             Your scan is processed securely and never shared.
           </span>
         </div>
         <div className="mt-4 flex flex-col gap-1">
           <Tooltip text="Need help? Click for upload tips.">
             <button
-              className={`text-xs underline hover:text-cyan-400 transition-colors duration-200 ${theme === 'dark' ? 'text-cyan-300' : 'text-sky-700'}`}
+              className={`text-xs underline transition-colors duration-200 ${
+                theme === 'dark' ? 'text-accent-blue hover:text-accent-teal' : 'text-[#164e63] hover:text-[#60a5fa]'
+              }`}
               onClick={() => alert('Tips:\n- Upload clear scan images\n- Add notes for better results\n- Supported: PNG, JPG, DICOM\n- Max file size: 10MB')}
               type="button"
             >

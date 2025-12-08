@@ -1,5 +1,4 @@
-// Security note: No hard-coded Gemini API key in repo. Key is taken from env.
-// Using NEXT_PUBLIC_GEMINI_KEY exposes the key to the browser bundle. Prefer GEMINI_API_KEY server-side.
+
 export function extractGeminiText(res) {
   if (!res) return '';
   const parts = [];
@@ -16,7 +15,7 @@ export function extractGeminiText(res) {
 }
 
 export async function sendGeminiRequest(body) {
-  const API_KEY = "AIzaSyADau_pOUDW2Z_2boidsFy9IjE2F-smnCo"
+  const API_KEY = "AIzaSyAJsb5IV7tsvconilbB0mRkwVYFDWBRRGM"
   
 
   try {
