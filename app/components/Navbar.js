@@ -19,15 +19,9 @@ export default function Navbar() {
         : 'bg-white/90 border-[#bae6fd]'
     } backdrop-blur flex items-center justify-between px-6 py-3 transition-all duration-700 ease-out ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
       <div className="flex items-center gap-4">
-<<<<<<< HEAD
-        <span className={`font-bold text-xl md:text-2xl tracking-tight transition-all duration-300 hover:scale-105 active:scale-95 cursor-pointer ${
-          theme === 'dark'
-            ? 'text-[#60a5fa] hover:text-[#bae6fd]'
-            : 'text-[#164e63] hover:text-[#60a5fa]'
+        <span className={`font-bold text-xl md:text-2xl tracking-tight transition-all duration-300 cursor-pointer ${
+          theme === 'dark' ? 'text-cyan-400 hover:text-cyan-200' : 'text-cyan-700 hover:text-cyan-900'
         }`}>
-=======
-        <span className={`font-bold text-xl md:text-2xl tracking-tight transition-all duration-300 cursor-pointer ${theme === 'dark' ? 'text-cyan-400 hover:text-cyan-200' : 'text-cyan-700 hover:text-cyan-900'}`}>
->>>>>>> c61f485933b06b665aef07daba544814e90cce9d
           MedScan AI
         </span>
       </div>
@@ -36,27 +30,18 @@ export default function Navbar() {
       }`}>
         <Link
           href="/"
-<<<<<<< HEAD
-          className={`nav-link font-medium transition-all duration-300 hover:text-[#60a5fa] hover:scale-105 active:scale-95 ${theme === 'light' ? 'hover:text-[#164e63]' : ''}`}
-=======
           className={`nav-link font-medium transition-all duration-300 hover:text-cyan-400 ${theme === 'light' ? 'hover:text-cyan-700' : ''}`}
->>>>>>> c61f485933b06b665aef07daba544814e90cce9d
         >
           Home
         </Link>
         <Link
           href="/results"
-<<<<<<< HEAD
-          className={`nav-link font-medium transition-all duration-300 hover:text-[#60a5fa] hover:scale-105 active:scale-95 ${theme === 'light' ? 'hover:text-[#164e63]' : ''}`}
-=======
           className={`nav-link font-medium transition-all duration-300 hover:text-cyan-400 ${theme === 'light' ? 'hover:text-cyan-700' : ''}`}
->>>>>>> c61f485933b06b665aef07daba544814e90cce9d
         >
           Results
         </Link>
       </nav>
       <div className="flex items-center gap-2">
-<<<<<<< HEAD
         {/* Theme toggle */}
         <button
           className={`rounded-full p-2 transition ${
@@ -78,8 +63,6 @@ export default function Navbar() {
             </svg>
           )}
         </button>
-=======
->>>>>>> c61f485933b06b665aef07daba544814e90cce9d
         <button
           className="md:hidden flex items-center px-2 py-1 rounded hover:bg-zinc-800 transition"
           onClick={() => setMenuOpen(m => !m)}
