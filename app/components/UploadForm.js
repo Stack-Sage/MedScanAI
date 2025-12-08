@@ -62,7 +62,7 @@ export default function UploadForm(props) {
       fd.append('file', file)
       fd.append('scan', file)
       const predictRes = await axios.post(
-        'https://medscanaibackend-production.up.railway.app/api/predict',
+        'https://ibmprojectbackend-production.up.railway.app/api/predict',
         fd,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )
@@ -124,47 +124,13 @@ export default function UploadForm(props) {
         className={`relative rounded-2xl shadow-md shadow-black/40 p-6 flex flex-col gap-4 border border-border-primary bg-secondary-dark text-primary transition-all duration-700 ease-out overflow-hidden
           ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
         `}
-        style={
-          theme === 'dark'
-            ? {
-                boxShadow: '0 8px 32px 0 #0ea5e9cc, 0 1.5px 8px 0 #22d3ee77',
-                backgroundImage: 'linear-gradient(120deg, #101624 0%, #18181b 60%, #0e172a 100%)',
-                backgroundBlendMode: 'screen',
-                borderColor: '#0ea5e9',
-                color: '#e0f2fe'
-              }
-            : {
-                boxShadow: '0 8px 32px 0 #bae6fdcc, 0 1.5px 8px 0 #7dd3fcbb',
-                backgroundImage: 'linear-gradient(120deg, #f0f9ff 0%, #bae6fd 100%)',
-                backgroundBlendMode: 'normal'
-              }
-        }
-        whileHover={{
-          scale: 1.04,
-          boxShadow: theme === 'dark'
-            ? "0 12px 40px 0 #22d3eecc, 0 1.5px 8px 0 #0ea5e9cc"
-            : "0 8px 32px 0 #22d3ee44"
+        style={{
+          boxShadow: '0 8px 32px 0 #0008, 0 1.5px 8px 0 #4fc3f733',
+          background: theme === 'dark' ? '#1a1e2c' : '#fff',
+          borderColor: theme === 'dark' ? '#2a2f3e' : '#bae6fd',
+          color: theme === 'dark' ? '#e0e6f2' : '#334155'
         }}
-        whileTap={{ scale: 0.98 }}
       >
-        {/* Animated border glow */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 0.5 }}
-          transition={{ duration: 1.2, repeat: Infinity, repeatType: "reverse", ease: "easeInOut" }}
-          className={`pointer-events-none absolute -inset-1 rounded-2xl z-0 ${
-            theme === 'dark'
-              ? ''
-              : 'bg-gradient-to-br from-blue-100 via-sky-100 to-white'
-          }`}
-          style={{
-            background: theme === 'dark'
-              ? "radial-gradient(circle at 60% 40%, #0ea5e9 0%, #101624 80%, #09090b 100%)"
-              : "radial-gradient(circle at 60% 40%, #bae6fd 0%, #f0f9ff 60%, transparent 100%)",
-            filter: "blur(24px)",
-            opacity: theme === 'light' ? 0.7 : 0.85
-          }}
-        />
         {/* Success animation */}
         <AnimatePresence>
           {success && (
@@ -289,10 +255,10 @@ export default function UploadForm(props) {
         <div className="flex flex-col gap-2 mt-2">
           <Tooltip text="Submit your scan for instant AI analysis.">
             <motion.button
-              whileTap={{ scale: 0.95, backgroundColor: "#0e7490" }}
+              whileTap={{ scale: 0.95, backgroundColor: theme === 'dark' ? "#00bfa5" : "#60a5fa" }}
               whileHover={{
-                scale: 1.09,
-                backgroundColor: "#0891b2",
+                scale: 1.05,
+                backgroundColor: theme === 'dark' ? "#4fc3f7" : "#bae6fd",
                 boxShadow: theme === 'dark'
                   ? "0 0 0 6px #4fc3f755"
                   : "0 0 0 4px #bae6fd55"
