@@ -213,25 +213,16 @@ function GuidanceCard({ title, points, theme }) {
       initial={{ opacity: 0, y: 40 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{
-        // removed scale; keep visual feedback
         boxShadow: theme === 'dark'
           ? "0 12px 40px 0 #60a5fa88, 0 1.5px 8px 0 #164e6388"
           : "0 12px 40px 0 #bae6fd88, 0 1.5px 8px 0 #60a5fa88",
         borderColor: "#60a5fa",
         background: theme === 'dark'
-<<<<<<< HEAD
-          ? "linear-gradient(135deg, #23272f 60%, #164e63 100%)"
-          : "linear-gradient(135deg, #f1f5f9 60%, #bae6fd 100%)",
-        color: theme === 'dark' ? "#e0e7ef" : undefined,
-        transition: { duration: 0.14, ease: [0.4,0,0.2,1] }
-=======
           ? "linear-gradient(135deg, #18181b 60%, #0e7490 100%)"
           : "linear-gradient(135deg, #e0f2fe 60%, #38bdf8 100%)",
         color: theme === 'dark' ? "#e0f2fe" : undefined
->>>>>>> c61f485933b06b665aef07daba544814e90cce9d
       }}
       whileTap={{
-        // removed scale on tap
         background: theme === 'dark'
           ? "linear-gradient(135deg, #164e63 60%, #23272f 100%)"
           : "linear-gradient(135deg, #bae6fd 60%, #f1f5f9 100%)"

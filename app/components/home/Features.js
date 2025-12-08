@@ -32,9 +32,6 @@ export default function Features() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, amount: 0.2 }}
             transition={{ duration: 0.5, delay: i * 0.12, ease: "easeOut" }}
-<<<<<<< HEAD
-            className="rounded-2xl shadow-2xl p-6 border bg-[#18181b]/90 border-cyan-800 text-cyan-100 backdrop-blur-md"
-=======
             whileHover={{
               boxShadow: theme === 'dark'
                 ? "0 8px 32px 0 #22d3eecc, 0 1.5px 8px 0 #0ea5e9cc"
@@ -72,7 +69,6 @@ export default function Features() {
                     backgroundBlendMode: 'normal'
                   }
             }
->>>>>>> c61f485933b06b665aef07daba544814e90cce9d
           >
             <div className="flex items-center gap-2 mb-2">
               <span className="inline-block w-2 h-2 rounded-full bg-cyan-400 animate-pulse" />
