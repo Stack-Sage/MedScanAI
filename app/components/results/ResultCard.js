@@ -24,8 +24,8 @@ function ScanImage({ file }) {
   return (
     <motion.div
       className="flex-shrink-0 flex items-center justify-center w-full md:w-[260px] h-[220px] bg-zinc-900/40 rounded-2xl border border-cyan-900 shadow-lg overflow-hidden"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      initial={{ scale: 0.92, opacity: 0 }}
+      animate={{ scale: 1, opacity: 1 }}
       transition={{ delay: 0.1, duration: 0.7, type: "spring" }}
     >
       {previewUrl ? (
@@ -33,8 +33,8 @@ function ScanImage({ file }) {
           src={previewUrl}
           alt="Scan"
           className="object-contain w-full h-full rounded-2xl"
-          initial={{ opacity: 0.7 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0.7, scale: 0.98 }}
+          animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 0.7, type: "spring" }}
         />
       ) : (
@@ -210,19 +210,22 @@ function buildFallbackGuidance(result) {
 function GuidanceCard({ title, points, theme }) {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 40 }}
-      animate={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 40, scale: 0.95 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
       whileHover={{
+        scale: 1.08,
         boxShadow: theme === 'dark'
           ? "0 12px 40px 0 #60a5fa88, 0 1.5px 8px 0 #164e6388"
           : "0 12px 40px 0 #bae6fd88, 0 1.5px 8px 0 #60a5fa88",
         borderColor: "#60a5fa",
         background: theme === 'dark'
-          ? "linear-gradient(135deg, #18181b 60%, #0e7490 100%)"
-          : "linear-gradient(135deg, #e0f2fe 60%, #38bdf8 100%)",
-        color: theme === 'dark' ? "#e0f2fe" : undefined
+          ? "linear-gradient(135deg, #23272f 60%, #164e63 100%)"
+          : "linear-gradient(135deg, #f1f5f9 60%, #bae6fd 100%)",
+        color: theme === 'dark' ? "#e0e7ef" : undefined,
+        transition: { duration: 0.14, ease: [0.4,0,0.2,1] }
       }}
       whileTap={{
+        scale: 0.97,
         background: theme === 'dark'
           ? "linear-gradient(135deg, #164e63 60%, #23272f 100%)"
           : "linear-gradient(135deg, #bae6fd 60%, #f1f5f9 100%)"
