@@ -209,21 +209,54 @@ export default function Home() {
 					? 'bg-primary-dark text-primary'
 					: 'bg-gradient-to-br from-[#f1f5f9] via-[#e0e7ef] to-[#bae6fd] text-[#334155]'
 			}`}
+<<<<<<< HEAD
 			style={{
 				background: theme === 'dark'
 					? 'linear-gradient(120deg, #0f111a 0%, #1a1e2c 100%)'
 					: 'linear-gradient(120deg, #f1f5f9 0%, #e0e7ef 60%, #bae6fd 100%)'
 			}}
+=======
+			style={
+				theme === 'light'
+					? {
+						backgroundImage:
+							'radial-gradient(800px 400px at 10% 0%, rgba(14,165,233,0.12), transparent 60%), radial-gradient(700px 360px at 90% 8%, rgba(34,211,238,0.10), transparent 60%), linear-gradient(120deg, #e0f2fe 0%, #f0f9ff 60%, #bae6fd 100%)',
+						backgroundBlendMode: 'screen, screen, normal'
+					}
+					: {
+						backgroundImage:
+							'radial-gradient(1000px 480px at 10% 0%, rgba(34,211,238,0.08), transparent 60%), radial-gradient(900px 420px at 90% 6%, rgba(14,165,233,0.08), transparent 60%), linear-gradient(120deg, #0b0f1a 0%, #0f172a 60%, #0a1220 100%)',
+						backgroundBlendMode: 'screen, screen, normal'
+					}
+			}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 			onMouseMove={onMouseMove}
 		>
 			{/* animated background */}
 			<div
 				ref={bgRef}
+<<<<<<< HEAD
 				className="pointer-events-none fixed inset-0 -z-10"
 				style={{
 					background: theme === 'dark'
 						? 'linear-gradient(120deg, #0f111a 0%, #1a1e2c 100%)'
 						: 'linear-gradient(120deg, #f1f5f9 0%, #e0e7ef 60%, #bae6fd 100%)'
+=======
+				className={`pointer-events-none fixed inset-0 -z-10 transition-colors duration-500 ${
+					theme === 'dark' ? 'bg-black' : 'bg-transparent'
+				}`}
+				style={{
+					opacity: theme === 'light' ? 0.98 : 0.96,
+					filter: 'blur(0.5px)'
+				}}
+			/>
+			{/* vignette overlay */}
+			<div
+				className="pointer-events-none fixed inset-0 -z-10"
+				style={{
+					background:
+						'radial-gradient(1200px 800px at 50% 10%, rgba(2,6,23,0.08), transparent 70%)'
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 				}}
 			/>
 
@@ -245,6 +278,7 @@ export default function Home() {
 				>
 					{/* Left: MedScan AI info */}
 					<motion.div
+<<<<<<< HEAD
 						className={`flex-1 flex flex-col items-center lg:items-start justify-center transition-all duration-300 ${
 							theme === 'dark'
 								? 'bg-secondary-dark border border-border-primary rounded-2xl p-8 shadow-md shadow-black/40'
@@ -260,41 +294,71 @@ export default function Home() {
 							}`}
 							initial={{ opacity: 0, y: -40, scale: 0.9, letterSpacing: "-0.1em" }}
 							animate={{ opacity: 1, y: 0, scale: 1, letterSpacing: "0.05em" }}
+=======
+						className="flex-1 flex flex-col items-center lg:items-start justify-center transition-all duration-300"
+						whileHover={{ y: -4, rotate: -1 }}
+						whileTap={{ rotate: 0.5 }}
+						initial={{ opacity: 0, x: -80, rotate: -5 }}
+						animate={{ opacity: 1, x: 0, rotate: 0 }}
+						transition={{ type: "spring", stiffness: 120, damping: 18 }}
+					>
+						<motion.h1
+							className="reveal text-4xl md:text-5xl font-extrabold text-cyan-300 mb-4 tracking-tight drop-shadow text-center lg:text-left"
+							initial={{ opacity: 0, y: -40, letterSpacing: "-0.1em" }}
+							animate={{ opacity: 1, y: 0, letterSpacing: "0.05em" }}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 							transition={{ delay: 0.1, duration: 0.8, type: "spring", bounce: 0.4 }}
 						>
 							{[..."MedScan AI"].map((char, i) => (
 								<motion.span
 									key={i}
-									initial={{ opacity: 0, y: -20, scale: 0.8, rotate: -10 }}
-									animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
+									initial={{ opacity: 0, y: -20, rotate: -10 }}
+									animate={{ opacity: 1, y: 0, rotate: 0 }}
 									transition={{ delay: 0.15 + i * 0.04, type: "spring", stiffness: 200, damping: 12 }}
 									className="inline-block"
+<<<<<<< HEAD
+=======
+									whileHover={{ color: "#67e8f9", rotate: 3 }}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 								>
 									{char === " " ? "\u00A0" : char}
 								</motion.span>
 							))}
 						</motion.h1>
 						<motion.p
+<<<<<<< HEAD
 							className={`reveal max-w-2xl text-lg md:text-xl mb-4 text-center lg:text-left ${
 								theme === 'dark' ? 'text-primary/90' : 'text-sky-900/90'
 							}`}
 							initial={{ opacity: 0, y: 30, scale: 0.95 }}
 							animate={{ opacity: 1, y: 0, scale: 1 }}
 							transition={{ delay: 0.5, duration: 0.7, type: "spring" }}
+=======
+							className="reveal max-w-2xl text-lg md:text-xl text-zinc-300 mb-4 text-center lg:text-left"
+							initial={{ opacity: 0, y: 30 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.5, duration: 0.7, type: "spring" }}
+							whileHover={{ color: "#a5f3fc", letterSpacing: "0.04em" }}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 						>
 							{[..."AI-powered scan analysis and instant health guidance."].map((char, i) => (
 								<motion.span
 									key={i}
-									initial={{ opacity: 0, y: 10, scale: 0.9 }}
-									animate={{ opacity: 1, y: 0, scale: 1 }}
+									initial={{ opacity: 0, y: 10 }}
+									animate={{ opacity: 1, y: 0 }}
 									transition={{ delay: 0.6 + i * 0.012, type: "spring", stiffness: 120, damping: 14 }}
 									className="inline-block"
+<<<<<<< HEAD
+=======
+									whileHover={{ color: "#67e8f9" }}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 								>
 									{char === " " ? "\u00A0" : char}
 								</motion.span>
 							))}
 						</motion.p>
 						<motion.div
+<<<<<<< HEAD
 							className={`reveal border rounded-xl shadow-2xl p-6 max-w-lg transition-all duration-300 ${
 								theme === 'dark'
 									? 'bg-secondary-dark border-border-primary text-primary'
@@ -303,14 +367,33 @@ export default function Home() {
 							initial={{ opacity: 0, y: 60, scale: 0.97 }}
 							animate={{ opacity: 1, y: 0, scale: 1 }}
 							transition={{ delay: 0.7, duration: 0.7, type: "spring" }}
+=======
+							className="reveal border rounded-xl shadow-2xl p-6 max-w-lg transition-all duration-300 hover:shadow-cyan-900/20 hover:border-cyan-400"
+							initial={{ opacity: 0, y: 60, rotate: 2 }}
+							animate={{ opacity: 1, y: 0, rotate: 0 }}
+							transition={{ delay: 0.7, duration: 0.7, type: "spring" }}
+							whileHover={{
+								boxShadow: theme === 'dark'
+									? "0 8px 32px 0 #22d3eecc"
+									: "0 8px 32px 0 #bae6fdcc",
+								borderColor: theme === 'dark'
+									? "#22d3ee"
+									: "#38bdf8",
+								rotate: -1
+							}}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 						>
 							<motion.h3
 								className={`text-xl font-semibold mb-2 ${
 									theme === 'dark' ? 'text-accent-blue drop-shadow-lg' : 'text-sky-700'
 								}`}
-								initial={{ opacity: 0, x: -30, scale: 0.9 }}
-								animate={{ opacity: 1, x: 0, scale: 1 }}
+								initial={{ opacity: 0, x: -30 }}
+								animate={{ opacity: 1, x: 0 }}
 								transition={{ delay: 0.8, duration: 0.5 }}
+<<<<<<< HEAD
+=======
+								whileHover={{ color: theme === 'dark' ? "#67e8f9" : "#0ea5e9" }}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 							>
 								Why MedScan AI?
 							</motion.h3>
@@ -331,14 +414,21 @@ export default function Home() {
 								].map((item, i) => (
 									<motion.li
 										key={i}
-										initial={{ opacity: 0, x: -24, scale: 0.9 }}
-										animate={{ opacity: 1, x: 0, scale: 1 }}
+										initial={{ opacity: 0, x: -24 }}
+										animate={{ opacity: 1, x: 0 }}
 										transition={{ duration: 0.4, delay: 1 + i * 0.13 }}
 										className={`transition-colors duration-300 ${
 											theme === 'dark'
 												? 'hover:text-accent-teal text-primary'
 												: 'hover:text-sky-700 text-[#334155]'
 										}`}
+<<<<<<< HEAD
+=======
+										whileHover={{
+											color: theme === 'dark' ? "#67e8f9" : "#0ea5e9",
+											x: 8
+										}}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 									>
 										{item}
 									</motion.li>
@@ -351,6 +441,12 @@ export default function Home() {
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: 1.6, duration: 0.5 }}
+<<<<<<< HEAD
+=======
+								whileHover={{
+									color: theme === 'dark' ? "#a5f3fc" : "#0ea5e9"
+								}}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 							>
 								<b>Note:</b> This is a demo. No real medical advice is provided.
 							</motion.div>
@@ -358,6 +454,7 @@ export default function Home() {
 					</motion.div>
 					{/* Right: Upload Form */}
 					<motion.div
+<<<<<<< HEAD
 						className={`flex-1 flex items-center justify-center w-full ${
 							theme === 'dark'
 								? 'bg-secondary-dark border border-border-primary shadow-md shadow-black/40 rounded-2xl p-8'
@@ -365,6 +462,13 @@ export default function Home() {
 						}`}
 						initial={{ opacity: 0, x: 80 }}
 						animate={{ opacity: 1, x: 0 }}
+=======
+						className="flex-1 flex items-center justify-center w-full"
+						whileHover={{ y: -2, boxShadow: "0 8px 32px 0 #22d3ee44", rotate: 1 }}
+						whileTap={{ rotate: -1 }}
+						initial={{ opacity: 0, x: 80, rotate: 5 }}
+						animate={{ opacity: 1, x: 0, rotate: 0 }}
+>>>>>>> c61f485933b06b665aef07daba544814e90cce9d
 						transition={{ type: "spring", stiffness: 120, damping: 18, delay: 0.3 }}
 					>
 						<UploadForm

@@ -36,7 +36,6 @@ const StyledWrapper = styled.div`
    z-index: -1;
    height: 100%;
    width: 100%;
-   transform: scale(0.8);
    filter: blur(25px);
    background: #0e7490;
    background: var(--background);
