@@ -15,7 +15,7 @@ export function extractGeminiText(res) {
 }
 
 export async function sendGeminiRequest(body) {
-  const API_KEY = "AIzaSyADau_pOUDW2Z_2boidsFy9IjE2F-smnCo"
+  const API_KEY = "AIzaSyBkVErdZ4kRBvy2vomitzMvH-IhyRQq-kU"
   
 
   try {
