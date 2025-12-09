@@ -79,6 +79,7 @@ function DiagnosisInfo({ diagnosis, confidence }) {
 }
 
 function cleanLine(l) {
+  if (typeof l !== 'string') return '';
   return l
     .replace(/^[\s>*•\-–—]+/, '')           // leading symbols
     .replace(/^\d+\.\s*/, '')               // leading numbering
@@ -140,7 +141,7 @@ function parseByHeadings(raw) {
 
 function buildCardsFromGemini(raw) {
   if (!raw) return [];
-  const text = raw.replace(/\r/g, '').trim();
+  const text = typeof raw === 'string' ? raw.replace(/\r/g, '').trim() : '';
 
   // First attempt: numbered sections pattern (existing logic)
   const numberedRegex = /(?:\d+\.\s*)([^\n:]+):?([\s\S]*?)(?=(?:\d+\.\s*[^\n:]+:?|$))/g;
@@ -343,7 +344,7 @@ export default function ResultCard({ result: propResult }) {
       setCards([{ title: 'Gemini Error', points: [geminiResponse] }]);
       return;
     }
-    if (!text || text === 'No Gemini response') {
+    if (!text || text === 'No Gemini response' || (result?.gemini?.error)) {
       setCards(buildFallbackGuidance(result));
       return;
     }

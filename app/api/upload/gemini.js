@@ -15,11 +15,11 @@ export function extractGeminiText(res) {
 }
 
 export async function sendGeminiRequest(body) {
-  const API_KEY = "AIzaSyAJsb5IV7tsvconilbB0mRkwVYFDWBRRGM"
+  const API_KEY = "AIzaSyA9rI12kU9-hMjE0fFV99HTeONDsRSiwnE"
   
 
   try {
-    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${API_KEY}`;
+    const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
     const response = await fetch(endpoint, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -35,3 +35,4 @@ export async function sendGeminiRequest(body) {
     return { error: 'Gemini request failed' };
   }
 }
+

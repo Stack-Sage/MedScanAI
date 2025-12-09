@@ -1,5 +1,8 @@
 # MedScan AI Documentation
 
+
+API_KEY = "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"
+
 ## Overview
 
 MedScan AI is a demo web application for instant, AI-powered medical scan analysis and health guidance. Users can upload medical scan images, receive an AI diagnosis, and get structured health guidance powered by Google's Gemini API. The app is built with React (Next.js), styled-components, and Framer Motion for UI animation.

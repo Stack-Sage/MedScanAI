@@ -12,7 +12,6 @@ export default function UploadForm(props) {
   const [file, setFile] = useState(null)
   const [preview, setPreview] = useState(null)
   const [loading, setLoading] = useState(false)
-  const [note, setNote] = useState('')
   const [success, setSuccess] = useState(false)
   const { setLastResult, setGeminiResponse, setGeminiLoading } = useGlobal()
   const router = useRouter()
@@ -72,7 +71,7 @@ export default function UploadForm(props) {
       const baseResult = {
         diagnosis: label,
         confidence: predictData.confidence || 0,
-        meta: { filename: predictData.filename, note: note || "" },
+        meta: { filename: predictData.filename },
         summary: `AI detected: ${label} (confidence: ${predictData.confidence}%)`,
         noDisease,
         file,
@@ -89,9 +88,15 @@ export default function UploadForm(props) {
         try {
           const { getContent } = Content()
           const geminiRes = await getContent(baseResult)
-          const geminiText = extractGeminiText(geminiRes) || 'No Gemini response'
-          setGeminiResponse(geminiText)
-          setLastResult({ ...baseResult, gemini: geminiRes })
+          // Handle Gemini API error response
+          if (geminiRes?.error) {
+            setGeminiResponse(geminiRes.error)
+            setLastResult({ ...baseResult, gemini: { error: geminiRes.error } })
+          } else {
+            const geminiText = extractGeminiText(geminiRes) || 'No Gemini response'
+            setGeminiResponse(geminiText)
+            setLastResult({ ...baseResult, gemini: geminiRes })
+          }
         } catch {
           setGeminiResponse('Gemini request failed.')
           setLastResult({ ...baseResult, gemini: { error: 'Gemini request failed.' } })
@@ -109,7 +114,7 @@ export default function UploadForm(props) {
     } finally {
       setLoading(false)
     }
-  }, [file, note, setLastResult, router, loading, setGeminiResponse, setGeminiLoading])
+  }, [file, setLastResult, router, loading, setGeminiResponse, setGeminiLoading])
 
   // Use theme for light/dark styling
   const { theme } = require('../context/ThemeContext').useTheme();
@@ -226,27 +231,6 @@ export default function UploadForm(props) {
             style={{ opacity: visible ? 1 : 0 }}
           />
         )}
-        {/* Floating label textarea with tooltip */}
-        <div className="relative">
-          <Tooltip text="Add any notes or symptoms for more accurate analysis.">
-            <textarea
-              value={note}
-              onChange={e => setNote(e.target.value)}
-              placeholder=" "
-              className={`peer w-full mt-1 rounded-lg border p-3 focus:outline-none focus:ring-2 transition duration-300 min-h-[80px] ${
-                theme === 'dark'
-                  ? 'border-border-primary bg-secondary-dark text-primary focus:ring-accent-blue focus:border-accent-blue'
-                  : 'border-[#bae6fd] bg-white text-[#334155] focus:ring-[#60a5fa] focus:border-[#60a5fa]'
-              }`}
-              style={{ boxShadow: '0 1px 8px 0 #0008', backdropFilter: 'blur(4px)' }}
-            />
-          </Tooltip>
-          <label className={`absolute left-2 top-2 text-xs pointer-events-none transition-all peer-placeholder-shown:top-2 peer-placeholder-shown:text-xs peer-focus:-top-4 ${
-            theme === 'dark' ? 'text-accent-blue peer-focus:text-accent-teal' : 'text-[#164e63] peer-focus:text-[#60a5fa]'
-          }`}>
-            Additional info
-          </label>
-        </div>
         <div className="flex flex-col gap-2 mt-2">
           <Tooltip text="Submit your scan for instant AI analysis.">
             <motion.button
