@@ -16,9 +16,10 @@ export function extractGeminiText(res) {
 export async function sendGeminiRequest(body) {
   // Load API key from environment variable
   const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
-  // Ensure the API key is set
+  // Debug log for production
   if (!API_KEY) {
-    throw new Error('API key is not set. Please set NEXT_PUBLIC_GEMINI_API_KEY in your .env.local file');
+    console.error('Gemini API key missing. Check NEXT_PUBLIC_GEMINI_API_KEY in production environment.');
+    throw new Error('API key is not set. Please set NEXT_PUBLIC_GEMINI_API_KEY in your .env.local file or production environment.');
   }
 
   try {
@@ -31,10 +32,13 @@ export async function sendGeminiRequest(body) {
     const json = await response.json();
     console.log('Gemini response:', json);
     if (!response.ok || json.error) {
+      // Log error for production debugging
+      console.error('Gemini API error:', json.error?.message || response.status);
       return { error: json.error?.message || `Gemini HTTP ${response.status}` };
     }
     return json;
   } catch (e) {
+    console.error('Gemini request failed:', e);
     return { error: 'Gemini request failed' };
   }
 }

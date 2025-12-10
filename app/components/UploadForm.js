@@ -87,7 +87,7 @@ export default function UploadForm(props) {
       fd.append('file', file)
       fd.append('scan', file)
       const predictRes = await axios.post(
-        'https://medscanbackend.onrender.com/predict/',
+        'https://medscanbackend.onrender.com/predict',
         fd,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )
