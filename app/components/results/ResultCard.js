@@ -1,7 +1,7 @@
 'use client'
-import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
-import { useTheme } from "../../context/ThemeContext";
+// Remove theme import
+// import { useTheme } from "../../context/ThemeContext";
 import Tooltip from "../Tooltip"
 import Loader from "../../components/ui/Loader"
 import { useGlobal } from "../../context/GlobalContext"
@@ -22,36 +22,25 @@ function ScanImage({ file }) {
     }
   }, [file]);
   return (
-    <motion.div
+    <div
       className="flex-shrink-0 flex items-center justify-center w-full md:w-[260px] h-[220px] bg-zinc-900/40 rounded-2xl border border-cyan-900 shadow-lg overflow-hidden"
-      initial={{ scale: 0.92, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      transition={{ delay: 0.1, duration: 0.7, type: "spring" }}
     >
       {previewUrl ? (
-        <motion.img
+        <img
           src={previewUrl}
           alt="Scan"
           className="object-contain w-full h-full rounded-2xl"
-          initial={{ opacity: 0.7, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.7, type: "spring" }}
         />
       ) : (
         <span className="text-cyan-300 text-lg">No image available</span>
       )}
-    </motion.div>
+    </div>
   );
 }
 
 function DiagnosisInfo({ diagnosis, confidence }) {
   return (
-    <motion.div
-      className="flex flex-col md:flex-row md:items-center gap-4"
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.25, duration: 0.6 }}
-    >
+    <div className="flex flex-col md:flex-row md:items-center gap-4">
       <div className="flex items-center gap-3">
         <span className="inline-flex items-center justify-center rounded-full bg-cyan-900/40 shadow w-12 h-12 border border-cyan-700">
           <svg className="w-7 h-7 text-cyan-400" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
@@ -74,7 +63,7 @@ function DiagnosisInfo({ diagnosis, confidence }) {
           <span className="text-xl font-bold text-green-300">{confidence}</span>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
@@ -207,36 +196,11 @@ function buildFallbackGuidance(result) {
   ];
 }
 
-// GuidanceCard unchanged except we ensure cleanLine applied before display
-function GuidanceCard({ title, points, theme }) {
+// GuidanceCard: always use dark mode styles
+function GuidanceCard({ title, points }) {
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 40, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      whileHover={{
-        scale: 1.08,
-        boxShadow: theme === 'dark'
-          ? "0 12px 40px 0 #60a5fa88, 0 1.5px 8px 0 #164e6388"
-          : "0 12px 40px 0 #bae6fd88, 0 1.5px 8px 0 #60a5fa88",
-        borderColor: "#60a5fa",
-        background: theme === 'dark'
-          ? "linear-gradient(135deg, #23272f 60%, #164e63 100%)"
-          : "linear-gradient(135deg, #f1f5f9 60%, #bae6fd 100%)",
-        color: theme === 'dark' ? "#e0e7ef" : undefined,
-        transition: { duration: 0.14, ease: [0.4,0,0.2,1] }
-      }}
-      whileTap={{
-        scale: 0.97,
-        background: theme === 'dark'
-          ? "linear-gradient(135deg, #164e63 60%, #23272f 100%)"
-          : "linear-gradient(135deg, #bae6fd 60%, #f1f5f9 100%)"
-      }}
-      transition={{ duration: 0.3, type: "spring", stiffness: 80, damping: 18 }}
-      className={`result-card-item relative group rounded-2xl shadow-xl border flex flex-col gap-2 cursor-pointer overflow-hidden transition-all duration-150 p-4
-        ${theme === 'dark'
-          ? 'bg-gradient-to-br from-[#23272f]/90 to-[#164e63]/90 border-[#164e63] text-[#e0e7ef] backdrop-blur-md'
-          : 'bg-gradient-to-br from-white via-[#e0e7ef] to-[#bae6fd] border-[#bae6fd] text-[#334155] backdrop-blur-[2px]'}
-      `}
+    <div
+      className="result-card-item relative group rounded-2xl shadow-xl border flex flex-col gap-2 cursor-pointer overflow-hidden transition-all duration-150 p-4 bg-gradient-to-br from-[#23272f]/90 to-[#164e63]/90 border-[#164e63] text-[#e0e7ef] backdrop-blur-md"
     >
       <div className="flex items-center gap-3 mb-2 z-10 relative">
         <span className="text-lg font-bold">{title}</span>
@@ -247,50 +211,31 @@ function GuidanceCard({ title, points, theme }) {
           </svg>
         </Tooltip>
       </div>
-      <motion.ul
-        className="pl-5 list-disc space-y-1 text-zinc-100/90 z-10 relative"
-        initial="hidden"
-        animate="visible"
-        variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.08 } } }}
-      >
-        <AnimatePresence>
-          {points.map((pt,i)=>(
-            <motion.li
-              key={i}
-              initial={{ opacity: 0, x: 24 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -24 }}
-              transition={{ duration: 0.3, ease: "easeOut" }}
-            >
-              <Tooltip text="AI-generated. Not medical advice." position="right">
-                {cleanLine(pt)}
-              </Tooltip>
-            </motion.li>
-          ))}
-        </AnimatePresence>
-      </motion.ul>
-      <motion.div
-        layoutId={`card-underline-${title}`}
+      <ul className="pl-5 list-disc space-y-1 text-zinc-100/90 z-10 relative">
+        {points.map((pt,i)=>(
+          <li key={i}>
+            <Tooltip text="AI-generated. Not medical advice." position="right">
+              {cleanLine(pt)}
+            </Tooltip>
+          </li>
+        ))}
+      </ul>
+      <div
         className="absolute left-6 bottom-2 h-1 w-10 rounded-full bg-cyan-400/40 opacity-0 group-hover:opacity-100 group-hover:w-96 transition-all duration:500"
       />
       <div className="pointer-events-none absolute -inset-px rounded-2xl ring-1 ring-inset ring-cyan-400/10" />
-    </motion.div>
+    </div>
   );
 }
 
-function GuidanceCards({ cards, theme }) {
+function GuidanceCards({ cards }) {
   if (!cards.length) return null;
   return (
-    <motion.div
-      className={`grid md:grid-cols-2 gap-6 ${theme === 'dark' ? 'text-[#e0e7ef]' : 'text-[#334155]'}`}
-      initial="hidden"
-      animate="visible"
-      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.12 } } }}
-    >
+    <div className="grid md:grid-cols-2 gap-6 text-[#e0e7ef]">
       {cards.map((card, idx) => (
-        <GuidanceCard key={idx} title={card.title} points={card.points} theme={theme} />
+        <GuidanceCard key={idx} title={card.title} points={card.points} />
       ))}
-    </motion.div>
+    </div>
   );
 }
 
@@ -301,7 +246,8 @@ export default function ResultCard({ result: propResult }) {
   const [text, setText] = useState(null);
   const [cards, setCards] = useState([]);
   const [file, setFile] = useState(null);
-  const { theme } = useTheme();
+  // Remove theme usage
+  // const { theme } = useTheme();
 
   // Use lastResult if no propResult
   const result = propResult || lastResult;
@@ -358,47 +304,25 @@ export default function ResultCard({ result: propResult }) {
   const isNoDisease = !!result.noDisease;
 
   return (
-    <motion.div
-      className="w-full flex flex-col gap-8"
-      initial="hidden"
-      animate="visible"
-      variants={{
-        hidden: {},
-        visible: { transition: { staggerChildren: 0.15 } }
-      }}
-    >
-      <motion.div
-        className={`flex flex-col md:flex-row items-center md:items-start gap-8 w-full`}
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, type: "spring", stiffness: 80, damping: 18 }}
-      >
+    <div className="w-full flex flex-col gap-8">
+      <div className="flex flex-col md:flex-row items-center md:items-start gap-8 w-full">
         <ScanImage file={file} />
         <div className="flex-1 flex flex-col gap-4">
           <DiagnosisInfo diagnosis={diagnosis} confidence={confidence} />
           {isNoDisease && (
-            <motion.div
-              initial={{ opacity: 0, y: 24 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.6, type: "spring" }}
-              className={`rounded-xl p-6 border text-center text-lg font-semibold ${
-                theme === 'dark'
-                  ? 'bg-gradient-to-br from-[#23272f] to-[#164e63] border-[#164e63] text-[#e0e7ef]'
-                  : 'bg-gradient-to-br from-white to-[#bae6fd] border-[#bae6fd] text-[#334155]'
-              }`}
-            >
+            <div className="rounded-xl p-6 border text-center text-lg font-semibold bg-gradient-to-br from-[#23272f] to-[#164e63] border-[#164e63] text-[#e0e7ef]">
               🎉 Great news! You don't have the detected disease.
-            </motion.div>
+            </div>
           )}
         </div>
-      </motion.div>
+      </div>
       {/* Guidance cards, separated for each question */}
-      {!isNoDisease && <GuidanceCards cards={cards} theme={theme} />}
+      {!isNoDisease && <GuidanceCards cards={cards} />}
       <div className="mt-6 flex justify-center">
         <Tooltip text="Results are for demonstration. For real medical advice, consult a professional.">
           <span className="text-xs text-cyan-400 underline cursor-pointer">What does this mean?</span>
         </Tooltip>
       </div>
-    </motion.div>
+    </div>
   );
 }

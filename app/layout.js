@@ -30,7 +30,7 @@ export default function RootLayout({ children }) {
         <meta name="apple-mobile-web-app-capable" content="yes" />
         <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
       </head>
-      <body className="antialiased bg-black text-zinc-100">
+      <body className="antialiased bg-black text-zinc-100 dark">
         <ThemeProvider>
           <GlobalProvider>
             <Navbar />

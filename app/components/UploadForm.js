@@ -3,7 +3,6 @@ import React, { useCallback, useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useGlobal } from '../context/GlobalContext'
 import axios from 'axios'
-import { motion, AnimatePresence } from 'framer-motion'
 import Tooltip from './Tooltip'
 import { extractGeminiText } from '../api/upload/gemini'
 import Content from './content'
@@ -18,20 +17,47 @@ export default function UploadForm(props) {
   const previewRef = useRef(null)
   const MAX_SIZE = 10 * 1024 * 1024
   const [visible, setVisible] = useState(false)
+  const [dragActive, setDragActive] = useState(false);
+
   useEffect(() => {
     const id = requestAnimationFrame(() => setVisible(true))
     return () => cancelAnimationFrame(id)
   }, [])
 
-  const onFile = useCallback((e) => {
-    const f = e.target.files?.[0] || null
-    if (f && f.size > MAX_SIZE) {
-      alert('File too large. Max 10MB.')
-      e.currentTarget.value = ''
-      return
+  // Drag and drop handlers
+  const handleDrag = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
     }
-    setFile(f)
-  }, [])
+  }, []);
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      const f = e.dataTransfer.files[0];
+      if (f.size > MAX_SIZE) {
+        alert('File too large. Max 10MB.');
+        return;
+      }
+      setFile(f);
+    }
+  }, [MAX_SIZE]);
+
+  const onFile = useCallback((e) => {
+    const f = e.target.files?.[0] || null;
+    if (f && f.size > MAX_SIZE) {
+      alert('File too large. Max 10MB.');
+      e.currentTarget.value = '';
+      return;
+    }
+    setFile(f);
+  }, [MAX_SIZE]);
 
   useEffect(() => {
     if (previewRef.current) {
@@ -61,7 +87,7 @@ export default function UploadForm(props) {
       fd.append('file', file)
       fd.append('scan', file)
       const predictRes = await axios.post(
-        'https://ibmprojectbackend-production.up.railway.app/api/predict',
+        'https://medscanbackend.onrender.com/predict/',
         fd,
         { headers: { 'Content-Type': 'multipart/form-data' } }
       )
@@ -116,170 +142,126 @@ export default function UploadForm(props) {
     }
   }, [file, setLastResult, router, loading, setGeminiResponse, setGeminiLoading])
 
-  // Use theme for light/dark styling
-  const { theme } = require('../context/ThemeContext').useTheme();
+  // Remove theme for light/dark styling
+  // const { theme } = require('../context/ThemeContext').useTheme();
+  const theme = 'dark';
 
   return (
     <div className="flex items-center justify-center min-h-[60vh]">
-      <motion.div
-        initial={{ opacity: 0, y: 40, scale: 0.97 }}
-        animate={{ opacity: 1, y: 0, scale: 1 }}
-        transition={{ duration: 0.7, ease: 'easeOut' }}
-        className={`relative rounded-2xl shadow-md shadow-black/40 p-6 flex flex-col gap-4 border border-border-primary bg-secondary-dark text-primary transition-all duration-700 ease-out overflow-hidden
+      <div
+        className={`relative rounded-2xl shadow-md shadow-black/40 p-8 flex flex-col gap-6 border border-border-primary bg-secondary-dark text-primary transition-all duration-700 ease-out overflow-hidden
           ${visible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}
         `}
         style={{
           boxShadow: '0 8px 32px 0 #0008, 0 1.5px 8px 0 #4fc3f733',
-          background: theme === 'dark' ? '#1a1e2c' : '#fff',
-          borderColor: theme === 'dark' ? '#2a2f3e' : '#bae6fd',
-          color: theme === 'dark' ? '#e0e6f2' : '#334155'
+          background: '#1a1e2c',
+          borderColor: '#2a2f3e',
+          color: '#e0e6f2'
         }}
       >
         {/* Success animation */}
-        <AnimatePresence>
-          {success && (
-            <motion.div
-              initial={{ opacity: 0, scale: 0.7 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.7 }}
-              transition={{ duration: 0.5 }}
-              className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 rounded-2xl"
-            >
-              <motion.div
-                initial={{ scale: 0.7 }}
-                animate={{ scale: 1.1 }}
-                transition={{ type: "spring", stiffness: 300, damping: 12 }}
-                className="flex flex-col items-center"
-              >
-                <svg width="64" height="64" fill="none" viewBox="0 0 64 64">
-                  <circle cx="32" cy="32" r="30" stroke="#38bdf8" strokeWidth="4" fill="#0ea5e9" />
-                  <motion.path
-                    d="M20 34l8 8 16-16"
-                    stroke="#fff"
-                    strokeWidth="4"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.7, delay: 0.2 }}
-                  />
-                </svg>
-                <div className="mt-2 text-lg font-bold text-blue-100">Uploaded!</div>
-              </motion.div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <motion.div
-          initial={{ opacity: 0, x: -32 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.7, delay: 0.15, ease: 'easeOut' }}
-        >
-          <h2 className={`text-xl font-bold mb-1 ${
-            theme === 'dark' ? 'text-accent-blue' : 'text-sky-700'
-          }`}>Upload your scan</h2>
-          <p className={`text-sm mb-2 ${
-            theme === 'dark' ? 'text-primary/80' : 'text-sky-900/80'
-          }`}>
+        {success && (
+          <div className="absolute inset-0 z-20 flex items-center justify-center bg-black/60 rounded-2xl">
+            <div className="flex flex-col items-center">
+              <svg width="64" height="64" fill="none" viewBox="0 0 64 64">
+                <circle cx="32" cy="32" r="30" stroke="#38bdf8" strokeWidth="4" fill="#0ea5e9" />
+                <path
+                  d="M20 34l8 8 16-16"
+                  stroke="#fff"
+                  strokeWidth="4"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              </svg>
+              <div className="mt-2 text-lg font-bold text-blue-100">Uploaded!</div>
+            </div>
+          </div>
+        )}
+        <div>
+          <h2 className="text-xl font-bold mb-2 text-accent-blue">Upload your scan</h2>
+          <p className="text-sm mb-4 text-primary/80">
             Supported: <span className="font-medium">PNG, JPG, DICOM</span> (converted). Max size 10MB.
           </p>
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.7 }}
-            transition={{ duration: 0.6, delay: 0.25, ease: 'easeOut' }}
-            className={`border rounded-lg p-3 mb-2 text-sm shadow ${
-              theme === 'dark'
-                ? 'bg-secondary-dark border-border-primary text-primary shadow-black/20'
-                : 'bg-white border-[#bae6fd] text-[#334155] shadow-[#bae6fd]/20'
-            }`}
-            style={{ backdropFilter: 'blur(4px)' }}
-          >
-            <b>Demo:</b> You can upload any image file for a simulated AI analysis.<br />
-            <span className={theme === 'dark' ? 'text-accent-blue' : 'text-sky-700'}>Your data is never stored permanently.</span>
-          </motion.div>
-        </motion.div>
-        {/* Floating label input with tooltip */}
-        <div className="relative mt-2">
-          <Tooltip text="Upload a scan image (PNG, JPG, DICOM). Max 10MB.">
-            <input
-              type="file"
-              accept="image/*"
-              onChange={onFile}
-              className={`peer block w-full mt-1 text-sm rounded-lg p-3 focus:outline-none focus:ring-2 transition duration-300 ${
-                theme === 'dark'
-                  ? 'bg-secondary-dark border border-border-primary text-primary focus:ring-accent-blue focus:border-accent-blue'
-                  : 'bg-white border border-[#bae6fd] text-[#334155] focus:ring-[#60a5fa] focus:border-[#60a5fa]'
-              }`}
-            />
-          </Tooltip>
-          <label className={`absolute left-2 -top-4 text-xs transition-all peer-focus:-top-5 ${
-            theme === 'dark' ? 'text-accent-blue peer-focus:text-accent-teal' : 'text-[#164e63] peer-focus:text-[#60a5fa]'
-          }`}>
-            Scan file
-          </label>
         </div>
-        {preview && (
-          <motion.img
-            src={preview}
-            alt="preview"
-            className={`rounded-lg border max-w-[180px] max-h-[180px] mx-auto my-2 shadow-lg object-contain ${
-              theme === 'dark' ? 'border-border-primary bg-secondary-dark' : 'border-[#bae6fd] bg-white'
-            }`}
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, ease: 'easeOut' }}
-            style={{ opacity: visible ? 1 : 0 }}
-          />
-        )}
-        <div className="flex flex-col gap-2 mt-2">
-          <Tooltip text="Submit your scan for instant AI analysis.">
-            <motion.button
-              whileTap={{ scale: 0.95, backgroundColor: theme === 'dark' ? "#00bfa5" : "#60a5fa" }}
-              whileHover={{
-                scale: 1.05,
-                backgroundColor: theme === 'dark' ? "#4fc3f7" : "#bae6fd",
-                boxShadow: theme === 'dark'
-                  ? "0 0 0 6px #4fc3f755"
-                  : "0 0 0 4px #bae6fd55"
+        {/* Drag and drop area */}
+        <div
+          className={`relative mt-2 mb-4`}
+          onDragEnter={handleDrag}
+          onDragOver={handleDrag}
+          onDragLeave={handleDrag}
+          onDrop={handleDrop}
+        >
+          <Tooltip text="Upload a scan image (PNG, JPG, DICOM). Max 10MB. You can drag & drop here.">
+            <label
+              htmlFor="file-upload"
+              className={`block w-full cursor-pointer rounded-lg border border-dashed border-accent-blue bg-secondary-dark p-0 transition duration-300 flex flex-col items-center justify-center min-h-[70px] relative`}
+              style={{
+                borderWidth: dragActive ? '2px' : '1px',
+                background: dragActive ? '#164e63' : '#1a1e2c',
+                boxShadow: dragActive ? '0 0 0 4px #60a5fa44' : undefined
               }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
-              className={`font-semibold py-3 px-6 rounded-lg transition duration-300 ease-in-out shadow-md ${
-                theme === 'dark'
-                  ? 'bg-accent-blue text-primary hover:bg-accent-teal shadow-accent-blue/30'
-                  : 'bg-[#bae6fd] text-[#334155] hover:bg-[#60a5fa] shadow-[#bae6fd]/30'
-              }`}
-              style={{ boxShadow: theme === 'dark' ? '0 2px 16px 0 #4fc3f733' : '0 2px 12px 0 #bae6fd44' }}
-              onClick={submit}
-              disabled={loading || !file}
             >
-              {loading ? (
-                <motion.span
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.3, repeat: Infinity, repeatType: "reverse" }}
-                  className="inline-block animate-spin mr-2"
-                >⏳</motion.span>
-              ) : 'Submit'}
-            </motion.button>
-          </Tooltip>
-          <span className={`text-xs ${theme === 'dark' ? 'text-primary/80' : 'text-sky-700/80'}`}>
-            Your scan is processed securely and never shared.
-          </span>
-        </div>
-        <div className="mt-4 flex flex-col gap-1">
-          <Tooltip text="Need help? Click for upload tips.">
-            <button
-              className={`text-xs underline transition-colors duration-200 ${
-                theme === 'dark' ? 'text-accent-blue hover:text-accent-teal' : 'text-[#164e63] hover:text-[#60a5fa]'
-              }`}
-              onClick={() => alert('Tips:\n- Upload clear scan images\n- Add notes for better results\n- Supported: PNG, JPG, DICOM\n- Max file size: 10MB')}
-              type="button"
-            >
-              Need help with uploading?
-            </button>
+              <input
+                id="file-upload"
+                type="file"
+                accept="image/*"
+                onChange={onFile}
+                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                style={{ zIndex: 2 }}
+              />
+              {!file ? (
+                <span className="flex flex-col items-center justify-center w-full h-full py-6 text-sm text-accent-blue font-semibold select-none pointer-events-none">
+                  <svg width="32" height="32" fill="none" stroke="#60a5fa" strokeWidth="2" viewBox="0 0 24 24" className="mb-2">
+                    <path d="M12 16v-8m0 0l-4 4m4-4l4 4" />
+                    <rect x="4" y="4" width="16" height="16" rx="4" />
+                  </svg>
+                  Drag & drop or <span className="underline">choose file</span>
+                  <span className="mt-1 text-xs text-primary/70">No file chosen</span>
+                </span>
+              ) : (
+                <span className="flex flex-col items-center justify-center w-full h-full py-6 text-sm text-accent-blue font-semibold select-none pointer-events-none">
+                  <svg width="32" height="32" fill="none" stroke="#60a5fa" strokeWidth="2" viewBox="0 0 24 24" className="mb-2">
+                    <path d="M12 16v-8m0 0l-4 4m4-4l4 4" />
+                    <rect x="4" y="4" width="16" height="16" rx="4" />
+                  </svg>
+                  <span className="text-xs text-primary/80">File selected: {file.name}</span>
+                </span>
+              )}
+            </label>
           </Tooltip>
         </div>
-      </motion.div>
+        {/* File preview */}
+        {preview && (
+          <div className="mt-4">
+            <div className="text-sm text-primary/80 mb-2">Preview:</div>
+            <div className="flex justify-center">
+              <img
+                src={preview}
+                alt="Preview"
+                className="max-w-full max-h-[300px] rounded-lg border border-border-primary shadow-md"
+                style={{ objectFit: 'contain' }}
+              />
+            </div>
+          </div>
+        )}
+        <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center mt-4 gap-4">
+          <button
+            onClick={submit}
+            disabled={loading}
+            className={`w-full sm:w-auto px-6 py-3 rounded-lg font-semibold text-white transition-all duration-300 flex items-center justify-center gap-2
+              ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-accent-blue hover:bg-accent-blue/90'}
+            `}
+          >
+            {loading && (
+              <svg className="animate-spin h-5 w-5 mr-3 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                <path d="M4 12h16" stroke="currentColor" strokeWidth="4" strokeLinecap="round" />
+              </svg>
+            )}
+            {loading ? 'Uploading...' : 'Upload and Analyze'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

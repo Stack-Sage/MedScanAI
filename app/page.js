@@ -6,7 +6,6 @@ import Features from "./components/home/Features"
 import Footer from "./components/home/Footer"
 import UploadForm from "./components/UploadForm"
 import ResultCard from "./components/results/ResultCard"
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion"
 import { useRouter } from "next/navigation"
 import axios from "axios";
 import { extractGeminiText } from "./api/upload/gemini"
@@ -42,17 +41,6 @@ export default function Home() {
 	// Background canvas (Three.js) container
 	const bgRef = useRef(null)
 
-	// Mouse parallax for hero area
-	const mx = useMotionValue(0)
-	const my = useMotionValue(0)
-	const rx = useSpring(useTransform(my, [0, 1], [8, -8]), { stiffness: 80, damping: 20 })
-	const ry = useSpring(useTransform(mx, [0, 1], [-8, 8]), { stiffness: 80, damping: 20 })
-	const onMouseMove = (e) => {
-		const { innerWidth, innerHeight } = window
-		mx.set(e.clientX / innerWidth)
-		my.set(e.clientY / innerHeight)
-	}
-
 	useEffect(() => {
 		let cleanup = () => {}
 		;(async () => {
@@ -86,8 +74,8 @@ export default function Home() {
 				let rafId
 				const animate = () => {
 					rafId = requestAnimationFrame(animate)
-					points.rotation.x += 0.0009
-					points.rotation.y += 0.0012
+					points.rotation.x += 0.0012 // slightly faster
+					points.rotation.y += 0.0017
 					renderer.render(scene, camera)
 				}
 
@@ -126,7 +114,7 @@ export default function Home() {
 				const { default: gsap } = await import('gsap');
 				const targets = document.querySelectorAll('.reveal');
 				if (targets.length) {
-					gsap.from('.reveal', { y: 24, opacity: 0, stagger: 0.08, duration: 0.6, ease: 'power2.out' });
+					gsap.from('.reveal', { y: 16, opacity: 0, stagger: 0.04, duration: 0.35, ease: 'power2.out' });
 				}
 			} catch {}
 		})()
@@ -204,28 +192,35 @@ export default function Home() {
 
 	return (
 		<div
-			className={`min-h-screen flex flex-col relative font-sans ${
-				theme === 'dark'
-					? 'bg-primary-dark text-primary'
-					: 'bg-gradient-to-br from-[#f1f5f9] via-[#e0e7ef] to-[#bae6fd] text-[#334155]'
-			}`}
+			className="min-h-screen flex flex-col relative font-sans bg-[#10151c] text-[#e0e7ef]"
 			style={{
-				background: theme === 'dark'
-					? 'linear-gradient(120deg, #0f111a 0%, #1a1e2c 100%)'
-					: 'linear-gradient(120deg, #f1f5f9 0%, #e0e7ef 60%, #bae6fd 100%)'
+				background: `
+					radial-gradient(ellipse 120% 80% at 50% 10%, #1e293b 0%, #0f172a 70%, #10151c 100%),
+					linear-gradient(120deg, #0f111a 0%, #1a1e2c 100%)
+				`,
+				overflow: 'hidden'
 			}}
-			onMouseMove={onMouseMove}
 		>
 			{/* animated background */}
 			<div
 				ref={bgRef}
 				className="pointer-events-none fixed inset-0 -z-10"
 				style={{
-					background: theme === 'dark'
-						? 'linear-gradient(120deg, #0f111a 0%, #1a1e2c 100%)'
-						: 'linear-gradient(120deg, #f1f5f9 0%, #e0e7ef 60%, #bae6fd 100%)'
+					background: `
+						radial-gradient(ellipse 80% 60% at 60% 0%, #38bdf8cc 0%, #0f172a00 70%),
+						radial-gradient(ellipse 60% 40% at 20% 100%, #0ea5e9bb 0%, #0f172a00 70%),
+						linear-gradient(120deg, #0f111a 0%, #1a1e2c 100%)
+					`
 				}}
 			/>
+			{/* glossy overlay */}
+			<div className="fixed inset-0 pointer-events-none z-0" style={{
+				background: "linear-gradient(120deg, #bae6fd22 0%, #0ea5e922 100%)",
+				backdropFilter: "blur(8px)",
+				WebkitBackdropFilter: "blur(8px)",
+				mixBlendMode: "screen",
+				opacity: 0.35
+			}} />
 
 			{loading && (
 				<div className="absolute inset-0 backdrop-blur-md bg-black/30 flex items-center justify-center z-50">
@@ -234,138 +229,70 @@ export default function Home() {
 			)}
 
 			<main className="flex-1 w-full flex flex-col items-center justify-center px-6 py-12 mx-auto">
-				<motion.div
-					className="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-12"
-					initial="hidden"
-					animate="visible"
-					variants={{
-						hidden: {},
-						visible: { transition: { staggerChildren: 0.22 } }
-					}}
-				>
+				<div className="w-full max-w-5xl flex flex-col lg:flex-row items-center justify-center gap-12">
 					{/* Left: MedScan AI info */}
-					<motion.div
-						className={`flex-1 flex flex-col items-center lg:items-start justify-center transition-all duration-300 ${
-							theme === 'dark'
-								? 'bg-secondary-dark border border-border-primary rounded-2xl p-8 shadow-md shadow-black/40'
-								: 'bg-white border border-[#bae6fd] rounded-2xl p-8 shadow-md shadow-[#bae6fd]/40'
-						}`}
-						initial={{ opacity: 0, x: -80 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ type: "spring", stiffness: 120, damping: 18 }}
+					<div
+						className="flex-1 flex flex-col items-center lg:items-start justify-center transition-all duration-200 bg-gradient-to-br from-[#23272f]/90 via-[#164e63]/80 to-[#0ea5e9]/60 border border-[#164e63] rounded-2xl p-8 shadow-2xl shadow-[#38bdf855] backdrop-blur-xl"
+						style={{
+							boxShadow: "0 8px 32px 0 #38bdf855, 0 1.5px 8px 0 #0ea5e944",
+							border: "1.5px solid #164e63",
+							background: "linear-gradient(135deg, #23272f 60%, #164e63 100%)",
+							backdropFilter: "blur(12px)",
+							WebkitBackdropFilter: "blur(12px)"
+						}}
 					>
-						<motion.h1
-							className={`reveal text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow text-center lg:text-left ${
-								theme === 'dark' ? 'text-accent-blue' : 'text-sky-700'
-							}`}
-							initial={{ opacity: 0, y: -40, scale: 0.9, letterSpacing: "-0.1em" }}
-							animate={{ opacity: 1, y: 0, scale: 1, letterSpacing: "0.05em" }}
-							transition={{ delay: 0.1, duration: 0.8, type: "spring", bounce: 0.4 }}
+						<h1 className="text-4xl md:text-5xl font-extrabold mb-4 tracking-tight drop-shadow text-center lg:text-left text-[#60a5fa] bg-gradient-to-r from-[#60a5fa] via-[#bae6fd] to-[#0ea5e9] bg-clip-text text-transparent">
+							MedScan AI
+						</h1>
+						<p
+							className="max-w-2xl text-lg md:text-xl mb-4 text-center lg:text-left text-[#e0e7ef] drop-shadow"
+							style={{
+								textShadow: "0 2px 12px #0ea5e988"
+							}}
 						>
-							{[..."MedScan AI"].map((char, i) => (
-								<motion.span
-									key={i}
-									initial={{ opacity: 0, y: -20, scale: 0.8, rotate: -10 }}
-									animate={{ opacity: 1, y: 0, scale: 1, rotate: 0 }}
-									transition={{ delay: 0.15 + i * 0.04, type: "spring", stiffness: 200, damping: 12 }}
-									className="inline-block"
-								>
-									{char === " " ? "\u00A0" : char}
-								</motion.span>
-							))}
-						</motion.h1>
-						<motion.p
-							className={`reveal max-w-2xl text-lg md:text-xl mb-4 text-center lg:text-left ${
-								theme === 'dark' ? 'text-primary/90' : 'text-sky-900/90'
-							}`}
-							initial={{ opacity: 0, y: 30, scale: 0.95 }}
-							animate={{ opacity: 1, y: 0, scale: 1 }}
-							transition={{ delay: 0.5, duration: 0.7, type: "spring" }}
+							AI-powered scan analysis and instant health guidance.
+						</p>
+						<div
+							className="border rounded-xl shadow-2xl p-6 max-w-lg bg-gradient-to-br from-[#23272f]/90 via-[#164e63]/80 to-[#0ea5e9]/60 border-[#164e63] text-[#e0e7ef] backdrop-blur-lg"
+							style={{
+								boxShadow: "0 8px 32px 0 #38bdf855, 0 1.5px 8px 0 #0ea5e944",
+								background: "linear-gradient(135deg, #23272f 60%, #164e63 100%)",
+								backdropFilter: "blur(8px)",
+								WebkitBackdropFilter: "blur(8px)"
+							}}
 						>
-							{[..."AI-powered scan analysis and instant health guidance."].map((char, i) => (
-								<motion.span
-									key={i}
-									initial={{ opacity: 0, y: 10, scale: 0.9 }}
-									animate={{ opacity: 1, y: 0, scale: 1 }}
-									transition={{ delay: 0.6 + i * 0.012, type: "spring", stiffness: 120, damping: 14 }}
-									className="inline-block"
-								>
-									{char === " " ? "\u00A0" : char}
-								</motion.span>
-							))}
-						</motion.p>
-						<motion.div
-							className={`reveal border rounded-xl shadow-2xl p-6 max-w-lg transition-all duration-300 ${
-								theme === 'dark'
-									? 'bg-secondary-dark border-border-primary text-primary'
-									: 'bg-white border-[#bae6fd] text-[#334155]'
-							}`}
-							initial={{ opacity: 0, y: 60, scale: 0.97 }}
-							animate={{ opacity: 1, y: 0, scale: 1 }}
-							transition={{ delay: 0.7, duration: 0.7, type: "spring" }}
-						>
-							<motion.h3
-								className={`text-xl font-semibold mb-2 ${
-									theme === 'dark' ? 'text-accent-blue drop-shadow-lg' : 'text-sky-700'
-								}`}
-								initial={{ opacity: 0, x: -30, scale: 0.9 }}
-								animate={{ opacity: 1, x: 0, scale: 1 }}
-								transition={{ delay: 0.8, duration: 0.5 }}
-							>
+							<h3 className="text-xl font-semibold mb-2 text-[#60a5fa] drop-shadow-lg">
 								Why MedScan AI?
-							</motion.h3>
-							<motion.ul
-								className="list-disc pl-6 space-y-1"
-								initial="hidden"
-								animate="visible"
-								variants={{
-									hidden: {},
-									visible: { transition: { staggerChildren: 0.13 } }
-								}}
-							>
-								{[
-									"Instant, AI-powered scan analysis",
-									"Personalized health guidance",
-									"Data privacy and security by design",
-									"Easy-to-use, accessible anywhere"
-								].map((item, i) => (
-									<motion.li
-										key={i}
-										initial={{ opacity: 0, x: -24, scale: 0.9 }}
-										animate={{ opacity: 1, x: 0, scale: 1 }}
-										transition={{ duration: 0.4, delay: 1 + i * 0.13 }}
-										className={`transition-colors duration-300 ${
-											theme === 'dark'
-												? 'hover:text-accent-teal text-primary'
-												: 'hover:text-sky-700 text-[#334155]'
-										}`}
-									>
-										{item}
-									</motion.li>
-								))}
-							</motion.ul>
-							<motion.div
-								className={`mt-4 text-sm ${
-									theme === 'dark' ? 'text-accent-blue' : 'text-sky-700'
-								}`}
-								initial={{ opacity: 0, y: 20 }}
-								animate={{ opacity: 1, y: 0 }}
-								transition={{ delay: 1.6, duration: 0.5 }}
-							>
+							</h3>
+							<ul className="list-disc pl-6 space-y-1">
+								<li className="transition-colors duration-200 hover:text-[#bae6fd] text-[#e0e7ef]" style={{ textShadow: "0 1px 8px #0ea5e988" }}>
+									Instant, AI-powered scan analysis
+								</li>
+								<li className="transition-colors duration-200 hover:text-[#bae6fd] text-[#e0e7ef]" style={{ textShadow: "0 1px 8px #0ea5e988" }}>
+									Personalized health guidance
+								</li>
+								<li className="transition-colors duration-200 hover:text-[#bae6fd] text-[#e0e7ef]" style={{ textShadow: "0 1px 8px #0ea5e988" }}>
+									Data privacy and security by design
+								</li>
+								<li className="transition-colors duration-200 hover:text-[#bae6fd] text-[#e0e7ef]" style={{ textShadow: "0 1px 8px #0ea5e988" }}>
+									Easy-to-use, accessible anywhere
+								</li>
+							</ul>
+							<div className="mt-4 text-sm text-[#60a5fa]">
 								<b>Note:</b> This is a demo. No real medical advice is provided.
-							</motion.div>
-						</motion.div>
-					</motion.div>
+							</div>
+						</div>
+					</div>
 					{/* Right: Upload Form */}
-					<motion.div
-						className={`flex-1 flex items-center justify-center w-full ${
-							theme === 'dark'
-								? 'bg-secondary-dark border border-border-primary shadow-md shadow-black/40 rounded-2xl p-8'
-								: 'bg-white border border-[#bae6fd] shadow-md shadow-[#bae6fd]/40 rounded-2xl p-8'
-						}`}
-						initial={{ opacity: 0, x: 80 }}
-						animate={{ opacity: 1, x: 0 }}
-						transition={{ type: "spring", stiffness: 120, damping: 18, delay: 0.3 }}
+					<div
+						className="flex-1 flex items-center justify-center w-full bg-gradient-to-br from-[#23272f]/90 via-[#164e63]/80 to-[#0ea5e9]/60 border border-[#164e63] shadow-2xl shadow-[#38bdf855] rounded-2xl p-8 backdrop-blur-xl"
+						style={{
+							boxShadow: "0 8px 32px 0 #38bdf855, 0 1.5px 8px 0 #0ea5e944",
+							border: "1.5px solid #164e63",
+							background: "linear-gradient(135deg, #23272f 60%, #164e63 100%)",
+							backdropFilter: "blur(12px)",
+							WebkitBackdropFilter: "blur(12px)"
+						}}
 					>
 						<UploadForm
 							file={file}
@@ -380,8 +307,8 @@ export default function Home() {
 							setLoading={setLoading}
 							submit={submit}
 						/>
-					</motion.div>
-				</motion.div>
+					</div>
+				</div>
 			</main>
 		</div>
 	)

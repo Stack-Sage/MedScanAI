@@ -1,5 +1,4 @@
 'use client'
-import { motion } from "framer-motion";
 
 export default function ResultCard({ result }) {
   if (!result) return null;
@@ -83,21 +82,8 @@ export default function ResultCard({ result }) {
   return (
     <div className="grid md:grid-cols-2 gap-6">
       {cards.map((card, idx) => (
-        <motion.div
+        <div
           key={card.label}
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          whileHover={{
-            boxShadow: "0 12px 40px 0 #22d3ee66",
-            borderColor: "#22d3ee",
-            background: "linear-gradient(135deg, #18181b 60%, #0e7490 100%)",
-            color: "#e0f2fe"
-          }}
-          whileTap={{
-            background: "linear-gradient(135deg, #0e7490 60%, #18181b 100%)"
-          }}
-          viewport={{ once: true, amount: 0.2 }}
-          transition={{ duration: 0.9, type: "spring", stiffness: 60, damping: 18 }}
           className={`relative group bg-gradient-to-br ${card.color} card p-6 rounded-2xl shadow-xl border border-zinc-800 flex flex-col gap-2 cursor-pointer overflow-hidden transition-all duration-300`}
         >
           <div className="flex items-center gap-3 mb-2">
@@ -107,11 +93,10 @@ export default function ResultCard({ result }) {
             <span className="text-lg font-bold text-cyan-300">{card.label}</span>
           </div>
           <div className="pl-1">{card.value}</div>
-          <motion.div
-            layoutId={`card-underline-${idx}`}
+          <div
             className="absolute left-6 bottom-4 h-1 w-10 rounded-full bg-cyan-400/40 opacity-0 group-hover:opacity-100 group-hover:w-20 transition-all duration-500"
           />
-        </motion.div>
+        </div>
       ))}
     </div>
   );
