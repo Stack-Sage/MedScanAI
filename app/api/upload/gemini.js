@@ -1,4 +1,3 @@
-
 export function extractGeminiText(res) {
   if (!res) return '';
   const parts = [];
@@ -15,8 +14,12 @@ export function extractGeminiText(res) {
 }
 
 export async function sendGeminiRequest(body) {
-  const API_KEY = "AIzaSyBkVErdZ4kRBvy2vomitzMvH-IhyRQq-kU"
-  
+  // Load API key from environment variable
+  const API_KEY = process.env.NEXT_PUBLIC_GEMINI_API_KEY;
+  // Ensure the API key is set
+  if (!API_KEY) {
+    throw new Error('API key is not set. Please set NEXT_PUBLIC_GEMINI_API_KEY in your .env.local file');
+  }
 
   try {
     const endpoint = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${API_KEY}`;
