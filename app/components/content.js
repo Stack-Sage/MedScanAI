@@ -59,7 +59,7 @@ Constraints:
       const result = await sendGeminiRequest(formattedRequest);
       return result;
     } catch (error) {
-      return { error: "Error fetching content from Gemini." };
+      return { error: "Apologies, something went wrong." };
     }
   }
 
